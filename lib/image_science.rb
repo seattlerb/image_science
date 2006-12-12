@@ -33,6 +33,7 @@ class ImageScience
           VALUE result = Qnil;
           if (bitmap = FreeImage_Load(fif, input, 0)) {
             VALUE obj = Data_Wrap_Struct(self, NULL, NULL, bitmap);
+            rb_iv_set(obj, "@file_type", INT2FIX(fif));
             result = rb_yield(obj);
             FreeImage_Unload(bitmap);
           }
@@ -77,6 +78,7 @@ class ImageScience
       VALUE thumbnail(char * output, int size) {
         FIBITMAP *bitmap;
         FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(output);
+        if (fif == FIF_UNKNOWN) fif = FIX2INT(rb_iv_get(self, "@file_type"));
         if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) { 
           Data_Get_Struct(self, FIBITMAP, bitmap);
           FIBITMAP *thumbnail = FreeImage_MakeThumbnail(bitmap, size, TRUE);
