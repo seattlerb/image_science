@@ -4,7 +4,7 @@ require 'rubygems'
 require 'hoe'
 require './lib/image_science.rb'
 
-Hoe.new('ImageScience', ImageScience::VERSION) do |p|
+Hoe.new('image_science', ImageScience::VERSION) do |p|
   p.rubyforge_name = 'seattlerb'
   p.description = p.paragraphs_of('README.txt', 2..3).join(" ")
   p.summary = p.description[/^[^.]+\./]
