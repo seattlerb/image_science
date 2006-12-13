@@ -1,18 +1,21 @@
 ImageScience
-    by Ryan Davis
     http://rubyforge.org/projects/seattlerb
+    http://seattlerb.rubyforge.org/
+    by Ryan Davis
 
 == DESCRIPTION:
 
-ImageScience is a clean and capable image thumbnailer capable of
-manipulating whatever image format you're probably already using. It
-uses FreeImage to manipulate various graphics formats.
+ImageScience is a clean and happy Ruby library that generates
+thumbnails -- and kicks the living crap out of RMagick. Oh, and it
+doesn't leak memory like a sieve. :)
+
+For more information including build steps, see http://seattlerb.rubyforge.org/
 
 == FEATURES/PROBLEMS:
 
-* Glorious 93 lines of graphics manipulation magi... errr, SCIENCE!
-* Square and proportional thumbnailing.
-* Pretty much any graphics format you could want.
+* 93 glorious lines of graphics manipulation magi... errr, SCIENCE!
+* Supports both square and proportional thumbnails.
+* Pretty much any graphics format you could want. No really.
 
 == SYNOPSYS:
 
@@ -26,15 +29,13 @@ uses FreeImage to manipulate various graphics formats.
 
 == REQUIREMENTS:
 
-* FreeImage - http://sf.net/projects/freeimage - I suggest CVS for now
-* RubyInline - sudo gem install RubyInline
+* FreeImage
+* ImageScience
 
 == INSTALL:
 
-* download and unpack FreeImage from URL above.
-* make -f Makefile.osx (or just make)
-* sudo make -f Makefile.osx install (exercise for the reader)
-* sudo gem install ImageScience
+* Download and install FreeImage. See notes at url above.
+* sudo gem install -y ImageScience
 
 == LICENSE:
 
