@@ -3,8 +3,48 @@
 require 'rubygems'
 require 'inline'
 
+##
+# Provides a simple and clean API to generate thumbnails using
+# FreeImage as the underlying mechanism.
+#
+# For more information or if you have build issues with FreeImage, see
+# http://seattlerb.rubyforge.org/ImageScience.html
+
 class ImageScience
   VERSION = '1.0.0'
+
+  ##
+  # The top-level image loader opens +path+ and then passes the image
+  # instance to the given block.
+
+  def self.with_image(path); end # :yields: image
+
+  ##
+  # Crops an image to +left+, +top+, +right+, and +bottom+ and then
+  # passes the new image to the given block.
+
+  def with_crop(left, top, right, bottom); end # :yields: image
+
+  ##
+  # Returns the width of the image, in pixels.
+
+  def width; end
+
+  ##
+  # Returns the height of the image, in pixels.
+
+  def height; end
+
+  ##
+  # Creates a proportional thumbnail of the image scaled so its widest
+  # edge is resized to +size+ and writes the new image to +path+.
+
+  def thumbnail(path, size); end
+
+  ##
+  # Creates a square thumbnail of the image cropping the longest edge
+  # to match the shortest edge, resizes to +size+, and writes the new
+  # image to +path+.
 
   def cropped_thumbnail(path, size)
     w, h = width, height
