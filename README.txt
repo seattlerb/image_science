@@ -35,7 +35,7 @@ For more information including build steps, see http://seattlerb.rubyforge.org/
 == INSTALL:
 
 * Download and install FreeImage. See notes at url above.
-* sudo gem install -y ImageScience
+* sudo gem install -y image_science
 
 == LICENSE:
 
