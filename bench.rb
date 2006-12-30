@@ -27,7 +27,9 @@ Benchmark::bm(20) do |x|
   x.report("cropped") {
     for i in 0..max do
       ImageScience.with_image(file) do |img|
-        img.cropped_thumbnail("blah_cropped.png", 100)
+        img.cropped_thumbnail(100) do |thumb|
+          thumb.save("blah_cropped.png")
+        end
       end
     end
   }
@@ -35,8 +37,22 @@ Benchmark::bm(20) do |x|
   x.report("proportional") {
     for i in 0..max do
       ImageScience.with_image(file) do |img|
-        img.thumbnail("blah_thumb.png", 100)
+        img.thumbnail(100) do |thumb|
+          thumb.save("blah_thumb.png")
+        end
+      end
+    end
+  }
+
+  x.report("resize") {
+    for i in 0..max do
+      ImageScience.with_image(file) do |img|
+        img.resize(200, 200) do |resize|
+          resize.save("blah_resize.png")
+        end
       end
     end
   }
 end
+
+# File.unlink(*Dir["blah*png"])

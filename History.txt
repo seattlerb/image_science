@@ -1,3 +1,10 @@
+== 1.1.0 / 2006-12-29
+
+* 3 major enhancements
+  * Added resize(width, height)
+  * Added save(path)
+  * All thumbnail and resize methods yield instead of saving directly.
+
 == 1.0.0 / 2006-12-01
 
 * 1 major enhancement
