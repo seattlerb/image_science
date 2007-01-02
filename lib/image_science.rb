@@ -67,6 +67,7 @@ class ImageScience
 
   inline do |builder|
     builder.add_link_flags "-lfreeimage"
+    builder.add_link_flags "-lstdc++" # only needed on PPC for some reason. lame
     builder.include '"FreeImage.h"'
 
     builder.prefix <<-"END"
