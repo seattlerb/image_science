@@ -66,6 +66,10 @@ class ImageScience
   end
 
   inline do |builder|
+    if test ?d, "/opt/local" then
+      builder.add_compile_flags "-I/opt/local/include"
+      builder.add_link_flags "-L/opt/local/lib"
+    end
     builder.add_link_flags "-lfreeimage"
     builder.add_link_flags "-lstdc++" # only needed on PPC for some reason. lame
     builder.include '"FreeImage.h"'
