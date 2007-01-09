@@ -4,25 +4,27 @@ require 'rubygems'
 require 'inline'
 
 ##
-# Provides a simple and clean API to generate thumbnails using
+# Provides a clean and simple API to generate thumbnails using
 # FreeImage as the underlying mechanism.
 #
 # For more information or if you have build issues with FreeImage, see
 # http://seattlerb.rubyforge.org/ImageScience.html
 
 class ImageScience
-  VERSION = '1.1.0'
+  VERSION = '1.1.1'
 
   ##
   # The top-level image loader opens +path+ and then yields the image.
 
-  def self.with_image(path); end # :yields: image
+  def self.with_image(path) # :yields: image
+  end
 
   ##
   # Crops an image to +left+, +top+, +right+, and +bottom+ and then
   # yields the new image.
 
-  def with_crop(left, top, right, bottom); end # :yields: image
+  def with_crop(left, top, right, bottom) # :yields: image
+  end
 
   ##
   # Returns the width of the image, in pixels.
@@ -35,16 +37,24 @@ class ImageScience
   def height; end
 
   ##
+  # Saves the image out to +path+. Changing the file extension will
+  # convert the file type to the appropriate format.
+
+  def save(path); end
+
+  ##
   # Resizes the image to +width+ and +height+ using a cubic-bspline
   # filter and yields the new image.
 
-  def resize(width, height); end # :yields: image
+  def resize(width, height) # :yields: image
+  end
 
   ##
   # Creates a proportional thumbnail of the image scaled so its widest
   # edge is resized to +size+ and yields the new image.
 
-  def thumbnail(size); end # :yields: image
+  def thumbnail(size) # :yields: image
+  end
 
   ##
   # Creates a square thumbnail of the image cropping the longest edge
@@ -85,6 +95,17 @@ class ImageScience
         return Qnil;
       }
     END
+
+    builder.prefix <<-"END"
+      void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message) {
+        rb_raise(rb_eRuntimeError,
+                 "FreeImage exception for type %s: %s",
+                  (fif == FIF_UNKNOWN) ? "???" : FreeImage_GetFormatFromFIF(fif),
+                  message);
+      }
+    END
+
+    builder.add_to_init "FreeImage_SetOutputMessage(FreeImageErrorHandler);"
 
     builder.c_singleton <<-"END"
       VALUE with_image(char * input) {
