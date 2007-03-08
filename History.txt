@@ -1,8 +1,13 @@
-== 1.1.1 / 2007-01-09
+== 1.1.1 / 2007-03-08
 
-* N minor enhancements:
-  * Added errar handler that raises with information about what went wrong.
-* N bug fixes:
+* 5 minor enhancements:
+  * Added error handler that raises with information about what went wrong.
+  * thumbnail is now pure ruby, everything now uses resize.
+  * Produces cleaner JPEG files, with a small cost to file size/speed.
+  * resize now uses Catmull-Rom spline filter for better quality.
+  * resize copies existing ICC Profile to thumbnail, producing better color.
+  * ICC Profile NOT copied for PNG as it seems to be buggy.
+* 1 bug fix:
   * Fixed rdoc
 
 == 1.1.0 / 2007-01-05

@@ -50,10 +50,16 @@ class ImageScience
   end
 
   ##
-  # Creates a proportional thumbnail of the image scaled so its widest
+  # Creates a proportional thumbnail of the image scaled so its longest
   # edge is resized to +size+ and yields the new image.
 
   def thumbnail(size) # :yields: image
+    w, h = width, height
+    scale = size.to_f / (w > h ? w : h)
+
+    self.resize((w * scale).to_i, (h * scale).to_i) do |image|
+      yield image
+    end
   end
 
   ##
@@ -94,6 +100,24 @@ class ImageScience
         DATA_PTR(self) = NULL;
         return Qnil;
       }
+
+      VALUE wrap_and_yield(FIBITMAP *image, VALUE self, FREE_IMAGE_FORMAT fif) {
+        VALUE klass = fif ? self         : CLASS_OF(self);
+        VALUE type  = fif ? INT2FIX(fif) : rb_iv_get(self, "@file_type");
+        VALUE obj = Data_Wrap_Struct(klass, NULL, NULL, image);
+        rb_iv_set(obj, "@file_type", type);
+        return rb_ensure(rb_yield, obj, unload, obj);
+      }
+
+      void copy_icc_profile(VALUE self, FIBITMAP *from, FIBITMAP *to) {
+        FREE_IMAGE_FORMAT fif = FIX2INT(rb_iv_get(self, "@file_type"));
+        if (fif != FIF_PNG && FreeImage_FIFSupportsICCProfiles(fif)) {
+          FIICCPROFILE *profile = FreeImage_GetICCProfile(from);
+          if (profile && profile->data) { 
+            FreeImage_CreateICCProfile(to, profile->data, profile->size); 
+          }
+        }
+      }
     END
 
     builder.prefix <<-"END"
@@ -116,10 +140,9 @@ class ImageScience
         if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsReading(fif)) { 
           FIBITMAP *bitmap;
           VALUE result = Qnil;
-          if (bitmap = FreeImage_Load(fif, input, 0)) {
-            VALUE obj = Data_Wrap_Struct(self, NULL, NULL, bitmap);
-            rb_iv_set(obj, "@file_type", INT2FIX(fif));
-            result = rb_ensure(rb_yield, obj, unload, obj);
+          int flags = fif == FIF_JPEG ? JPEG_ACCURATE : 0;
+          if (bitmap = FreeImage_Load(fif, input, flags)) {
+            result = wrap_and_yield(bitmap, self, fif);
           }
           return result;
         }
@@ -134,8 +157,8 @@ class ImageScience
         GET_BITMAP(bitmap);
 
         if (copy = FreeImage_Copy(bitmap, l, t, r, b)) {
-          VALUE obj = Data_Wrap_Struct(CLASS_OF(self), NULL, NULL, copy);
-          result = rb_ensure(rb_yield, obj, unload, obj);
+          copy_icc_profile(self, bitmap, copy);
+          result = wrap_and_yield(copy, self, 0);
         }
         return result;
       }
@@ -158,20 +181,11 @@ class ImageScience
     END
 
     builder.c <<-"END"
-      VALUE thumbnail(int size) {
-        GET_BITMAP(bitmap);
-        FIBITMAP *image = FreeImage_MakeThumbnail(bitmap, size, TRUE);
-        VALUE obj = Data_Wrap_Struct(CLASS_OF(self), NULL, NULL, image);
-        return rb_ensure(rb_yield, obj, unload, obj);
-      }
-    END
-
-    builder.c <<-"END"
       VALUE resize(int w, int h) {
         GET_BITMAP(bitmap);
-        FIBITMAP *image = FreeImage_Rescale(bitmap, w, h, FILTER_BSPLINE);
-        VALUE obj = Data_Wrap_Struct(CLASS_OF(self), NULL, NULL, image);
-        return rb_ensure(rb_yield, obj, unload, obj);
+        FIBITMAP *image = FreeImage_Rescale(bitmap, w, h, FILTER_CATMULLROM);
+        copy_icc_profile(self, bitmap, image);
+        return wrap_and_yield(image, self, 0);
       }
     END
 
@@ -181,11 +195,8 @@ class ImageScience
         if (fif == FIF_UNKNOWN) fif = FIX2INT(rb_iv_get(self, "@file_type"));
         if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) { 
           GET_BITMAP(bitmap);
-
-          if (FreeImage_Save(fif, bitmap, output, 0)) {
-            return Qtrue;
-          }
-          return Qfalse;
+          int flags = fif == FIF_JPEG ? JPEG_QUALITYSUPERB : 0;
+          return FreeImage_Save(fif, bitmap, output, flags) ? Qtrue : Qfalse;
         }
         rb_raise(rb_eTypeError, "Unknown file format");
       }

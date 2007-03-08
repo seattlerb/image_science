@@ -1,6 +1,6 @@
 ImageScience
+    http://seattlerb.rubyforge.org/ImageScience.html
     http://rubyforge.org/projects/seattlerb
-    http://seattlerb.rubyforge.org/
     by Ryan Davis
 
 == DESCRIPTION:
@@ -13,18 +13,20 @@ For more information including build steps, see http://seattlerb.rubyforge.org/
 
 == FEATURES/PROBLEMS:
 
-* 93 glorious lines of graphics manipulation magi... errr, SCIENCE!
-* Supports both square and proportional thumbnails.
+* Glorious graphics manipulation magi... errr, SCIENCE! in less than 200 LoC!
+* Supports square and proportional thumbnails, as well as arbitrary resizes.
 * Pretty much any graphics format you could want. No really.
 
 == SYNOPSYS:
 
   ImageScience.with_image(file) do |img|
-    img.cropped_thumbnail("#{file}_cropped.png", 100)
-  end
-  
-  ImageScience.with_image(file) do |img|
-    img.thumbnail("#{file}_thumb.png", 100)
+    img.cropped_thumbnail(100) do |thumb|
+      thumb.save "#{file}_cropped.png"
+    end
+
+    img.thumbnail(100) do |thumb|
+      thumb.save "#{file}_thumb.png"
+    end
   end
 
 == REQUIREMENTS:
@@ -36,12 +38,13 @@ For more information including build steps, see http://seattlerb.rubyforge.org/
 
 * Download and install FreeImage. See notes at url above.
 * sudo gem install -y image_science
+* see http://seattlerb.rubyforge.org/ImageScience.html for more info.
 
 == LICENSE:
 
 (The MIT License)
 
-Copyright (c) 2006 Ryan Davis, Seattle.rb
+Copyright (c) 2006-2007 Ryan Davis, Seattle.rb
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

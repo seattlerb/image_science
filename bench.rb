@@ -4,7 +4,10 @@ require 'benchmark'
 require 'rubygems'
 require 'image_science'
 
-file = "blah_big.png"
+max = (ARGV.shift || 100).to_i
+ext = ARGV.shift || "png"
+
+file = "blah_big.#{ext}"
 
 if RUBY_PLATFORM =~ /darwin/ then
   # how fucking cool is this???
@@ -14,7 +17,9 @@ else
   abort "You need to plonk down #{file} or buy a mac"
 end unless test ?f, "#{file}"
 
-max = (ARGV.shift || 100).to_i
+ImageScience.with_image(file.sub(/#{ext}$/, 'png')) do |img|
+  img.save(file)
+end if ext != "png"
 
 puts "# of iterations = #{max}"
 Benchmark::bm(20) do |x|
@@ -28,7 +33,7 @@ Benchmark::bm(20) do |x|
     for i in 0..max do
       ImageScience.with_image(file) do |img|
         img.cropped_thumbnail(100) do |thumb|
-          thumb.save("blah_cropped.png")
+          thumb.save("blah_cropped.#{ext}")
         end
       end
     end
@@ -38,7 +43,7 @@ Benchmark::bm(20) do |x|
     for i in 0..max do
       ImageScience.with_image(file) do |img|
         img.thumbnail(100) do |thumb|
-          thumb.save("blah_thumb.png")
+          thumb.save("blah_thumb.#{ext}")
         end
       end
     end
@@ -48,11 +53,11 @@ Benchmark::bm(20) do |x|
     for i in 0..max do
       ImageScience.with_image(file) do |img|
         img.resize(200, 200) do |resize|
-          resize.save("blah_resize.png")
+          resize.save("blah_resize.#{ext}")
         end
       end
     end
   }
 end
 
-# File.unlink(*Dir["blah*png"])
+# File.unlink(*Dir["blah*#{ext}"])
