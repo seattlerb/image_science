@@ -181,11 +181,16 @@ class ImageScience
     END
 
     builder.c <<-"END"
-      VALUE resize(int w, int h) {
+      VALUE resize(long w, long h) {
+        if (w <= 0) rb_raise(rb_eArgError, "Width <= 0");
+        if (h <= 0) rb_raise(rb_eArgError, "Height <= 0");
         GET_BITMAP(bitmap);
         FIBITMAP *image = FreeImage_Rescale(bitmap, w, h, FILTER_CATMULLROM);
-        copy_icc_profile(self, bitmap, image);
-        return wrap_and_yield(image, self, 0);
+        if (image) {
+          copy_icc_profile(self, bitmap, image);
+          return wrap_and_yield(image, self, 0);
+        }
+        return Qnil;
       }
     END
 
@@ -196,6 +201,7 @@ class ImageScience
         if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) { 
           GET_BITMAP(bitmap);
           int flags = fif == FIF_JPEG ? JPEG_QUALITYSUPERB : 0;
+          if (fif == FIF_PNG) FreeImage_DestroyICCProfile(bitmap);
           return FreeImage_Save(fif, bitmap, output, flags) ? Qtrue : Qfalse;
         }
         rb_raise(rb_eTypeError, "Unknown file format");

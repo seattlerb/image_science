@@ -4,3 +4,5 @@ README.txt
 Rakefile
 bench.rb
 lib/image_science.rb
+test/pix.png
+test/test_image_science.rb
