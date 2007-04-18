@@ -11,7 +11,7 @@ require 'inline'
 # http://seattlerb.rubyforge.org/ImageScience.html
 
 class ImageScience
-  VERSION = '1.1.1'
+  VERSION = '1.1.2'
 
   ##
   # The top-level image loader opens +path+ and then yields the image.

@@ -1,3 +1,9 @@
+== 1.1.2 / 2007-04-18
+
+* 2 bug fixes:
+  * reports bad height/width values for resize
+  * explicitly removes ICC color profiles from PNGs (bug in freeimage).
+
 == 1.1.1 / 2007-03-08
 
 * 5 minor enhancements:
