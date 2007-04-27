@@ -11,7 +11,7 @@ require 'inline'
 # http://seattlerb.rubyforge.org/ImageScience.html
 
 class ImageScience
-  VERSION = '1.1.2'
+  VERSION = '1.1.3'
 
   ##
   # The top-level image loader opens +path+ and then yields the image.
@@ -86,6 +86,7 @@ class ImageScience
       builder.add_compile_flags "-I/opt/local/include"
       builder.add_link_flags "-L/opt/local/lib"
     end
+    builder.add_link_flags "-fPIC"
     builder.add_link_flags "-lfreeimage"
     builder.add_link_flags "-lstdc++" # only needed on PPC for some reason. lame
     builder.include '"FreeImage.h"'
