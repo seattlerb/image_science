@@ -1,8 +1,3 @@
-== 1.1.3 / 2007-04-27
-
-* 1 bug fix:
-  * Use -fPIC explicitly to work on 64 bit machines. Stupid GCC.
-
 == 1.1.2 / 2007-04-18
 
 * 2 bug fixes:
