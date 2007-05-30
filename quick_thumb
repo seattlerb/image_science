@@ -1,0 +1,27 @@
+#!/usr/local/bin/ruby -w
+
+abort "#{File.basename $0} max_length files..." unless ARGV.size > 1
+
+require 'rubygems'
+require 'image_science'
+
+max_length = ARGV.shift.to_i
+
+ARGV.each do |file|
+  begin
+    result = ImageScience.with_image file do |img|
+      begin
+        img.thumbnail(max_length) do |thumb|
+          # add _thumb and switch from gif to png. Really. gif just sucks.
+          out = file.sub(/(\.[^\.]+)$/, '_thumb\1').sub(/gif$/, 'png')
+          thumb.save(out)
+        end
+      rescue => e
+        warn "Exception thumbnailing #{file}: #{e}"
+      end
+    end
+    p file => result
+  rescue => e
+    warn "Exception opening #{file}: #{e}"
+  end
+end

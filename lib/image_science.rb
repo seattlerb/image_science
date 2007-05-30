@@ -11,7 +11,7 @@ require 'inline'
 # http://seattlerb.rubyforge.org/ImageScience.html
 
 class ImageScience
-  VERSION = '1.1.2'
+  VERSION = '1.1.3'
 
   ##
   # The top-level image loader opens +path+ and then yields the image.
@@ -86,13 +86,16 @@ class ImageScience
       builder.add_compile_flags "-I/opt/local/include"
       builder.add_link_flags "-L/opt/local/lib"
     end
+
     builder.add_link_flags "-lfreeimage"
     builder.add_link_flags "-lstdc++" # only needed on PPC for some reason. lame
     builder.include '"FreeImage.h"'
 
     builder.prefix <<-"END"
       #define GET_BITMAP(name) FIBITMAP *(name); Data_Get_Struct(self, FIBITMAP, (name)); if (!(name)) rb_raise(rb_eTypeError, "Bitmap has already been freed")
+    END
 
+    builder.prefix <<-"END"
       VALUE unload(VALUE self) {
         GET_BITMAP(bitmap);
 
@@ -100,7 +103,9 @@ class ImageScience
         DATA_PTR(self) = NULL;
         return Qnil;
       }
+    END
 
+    builder.prefix <<-"END"
       VALUE wrap_and_yield(FIBITMAP *image, VALUE self, FREE_IMAGE_FORMAT fif) {
         VALUE klass = fif ? self         : CLASS_OF(self);
         VALUE type  = fif ? INT2FIX(fif) : rb_iv_get(self, "@file_type");
@@ -108,7 +113,9 @@ class ImageScience
         rb_iv_set(obj, "@file_type", type);
         return rb_ensure(rb_yield, obj, unload, obj);
       }
+    END
 
+    builder.prefix <<-"END"
       void copy_icc_profile(VALUE self, FIBITMAP *from, FIBITMAP *to) {
         FREE_IMAGE_FORMAT fif = FIX2INT(rb_iv_get(self, "@file_type"));
         if (fif != FIF_PNG && FreeImage_FIFSupportsICCProfiles(fif)) {
@@ -122,6 +129,7 @@ class ImageScience
 
     builder.prefix <<-"END"
       void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message) {
+        if (! RTEST(ruby_debug)) return;
         rb_raise(rb_eRuntimeError,
                  "FreeImage exception for type %s: %s",
                   (fif == FIF_UNKNOWN) ? "???" : FreeImage_GetFormatFromFIF(fif),
