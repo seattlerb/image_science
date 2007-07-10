@@ -209,8 +209,17 @@ class ImageScience
         if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) { 
           GET_BITMAP(bitmap);
           int flags = fif == FIF_JPEG ? JPEG_QUALITYSUPERB : 0;
+          BOOL result = 0, unload = 0;
+
           if (fif == FIF_PNG) FreeImage_DestroyICCProfile(bitmap);
-          return FreeImage_Save(fif, bitmap, output, flags) ? Qtrue : Qfalse;
+          if (fif == FIF_JPEG && FreeImage_GetBPP(bitmap) != 24)
+            bitmap = FreeImage_ConvertTo24Bits(bitmap), unload = 1; // sue me
+
+          result = FreeImage_Save(fif, bitmap, output, flags);
+
+          if (unload) FreeImage_Unload(bitmap);
+
+          return result ? Qtrue : Qfalse;
         }
         rb_raise(rb_eTypeError, "Unknown file format");
       }
