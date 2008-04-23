@@ -107,8 +107,9 @@ class ImageScience
 
     builder.prefix <<-"END"
       VALUE wrap_and_yield(FIBITMAP *image, VALUE self, FREE_IMAGE_FORMAT fif) {
-        VALUE klass = fif ? self         : CLASS_OF(self);
-        VALUE type  = fif ? INT2FIX(fif) : rb_iv_get(self, "@file_type");
+        unsigned int self_is_class = rb_type(self) == T_CLASS;
+        VALUE klass = self_is_class ? self         : CLASS_OF(self);
+        VALUE type  = self_is_class ? INT2FIX(fif) : rb_iv_get(self, "@file_type");
         VALUE obj = Data_Wrap_Struct(klass, NULL, NULL, image);
         rb_iv_set(obj, "@file_type", type);
         return rb_ensure(rb_yield, obj, unload, obj);
@@ -120,8 +121,8 @@ class ImageScience
         FREE_IMAGE_FORMAT fif = FIX2INT(rb_iv_get(self, "@file_type"));
         if (fif != FIF_PNG && FreeImage_FIFSupportsICCProfiles(fif)) {
           FIICCPROFILE *profile = FreeImage_GetICCProfile(from);
-          if (profile && profile->data) { 
-            FreeImage_CreateICCProfile(to, profile->data, profile->size); 
+          if (profile && profile->data) {
+            FreeImage_CreateICCProfile(to, profile->data, profile->size);
           }
         }
       }
@@ -129,7 +130,6 @@ class ImageScience
 
     builder.prefix <<-"END"
       void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message) {
-        if (! RTEST(ruby_debug)) return;
         rb_raise(rb_eRuntimeError,
                  "FreeImage exception for type %s: %s",
                   (fif == FIF_UNKNOWN) ? "???" : FreeImage_GetFormatFromFIF(fif),
@@ -141,11 +141,11 @@ class ImageScience
 
     builder.c_singleton <<-"END"
       VALUE with_image(char * input) {
-        FREE_IMAGE_FORMAT fif = FIF_UNKNOWN; 
+        FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 
-        fif = FreeImage_GetFileType(input, 0); 
-        if (fif == FIF_UNKNOWN) fif = FreeImage_GetFIFFromFilename(input); 
-        if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsReading(fif)) { 
+        fif = FreeImage_GetFileType(input, 0);
+        if (fif == FIF_UNKNOWN) fif = FreeImage_GetFIFFromFilename(input);
+        if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsReading(fif)) {
           FIBITMAP *bitmap;
           VALUE result = Qnil;
           int flags = fif == FIF_JPEG ? JPEG_ACCURATE : 0;
@@ -206,7 +206,7 @@ class ImageScience
       VALUE save(char * output) {
         FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(output);
         if (fif == FIF_UNKNOWN) fif = FIX2INT(rb_iv_get(self, "@file_type"));
-        if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) { 
+        if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) {
           GET_BITMAP(bitmap);
           int flags = fif == FIF_JPEG ? JPEG_QUALITYSUPERB : 0;
           BOOL result = 0, unload = 0;
