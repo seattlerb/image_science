@@ -3,7 +3,7 @@ Manifest.txt
 README.txt
 Rakefile
 bench.rb
+bin/image_science_thumb
 lib/image_science.rb
-quick_thumb
 test/pix.png
 test/test_image_science.rb
