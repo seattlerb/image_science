@@ -1,4 +1,6 @@
-#!/usr/local/bin/ruby -w
+#!/usr/local/bin/ruby -ws
+
+$s ||= false
 
 abort "#{File.basename $0} max_length files..." unless ARGV.size > 1
 
@@ -7,11 +9,13 @@ require 'image_science'
 
 max_length = ARGV.shift.to_i
 
+msg = $s ? :cropped_thumbnail : :thumbnail
+
 ARGV.each do |file|
   begin
     result = ImageScience.with_image file do |img|
       begin
-        img.thumbnail(max_length) do |thumb|
+        img.send(msg, max_length) do |thumb|
           # add _thumb and switch from gif to png. Really. gif just sucks.
           out = file.sub(/(\.[^\.]+)$/, '_thumb\1').sub(/gif$/, 'png')
           thumb.save(out)
