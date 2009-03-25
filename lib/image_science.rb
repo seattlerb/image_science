@@ -20,6 +20,12 @@ class ImageScience
   end
 
   ##
+  # The top-level image loader, opens an image from the string +data+ and then yields the image.
+
+  def self.with_image_from_memory(data) # :yields: image
+  end
+
+  ##
   # Crops an image to +left+, +top+, +right+, and +bottom+ and then
   # yields the new image.
 
@@ -155,6 +161,36 @@ class ImageScience
           return result;
         }
         rb_raise(rb_eTypeError, "Unknown file format");
+      }
+    END
+
+    builder.c_singleton <<-"END"
+      VALUE with_image_from_memory(VALUE image_data) {
+        FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
+
+        Check_Type(image_data, T_STRING);
+        BYTE *image_data_ptr    = (BYTE*)RSTRING(image_data)->ptr;
+        DWORD image_data_length = RSTRING(image_data)->len;
+        FIMEMORY *stream = FreeImage_OpenMemory(image_data_ptr, image_data_length);
+
+        if (NULL == stream) {
+          rb_raise(rb_eTypeError, "Unable to open image_data");
+        }
+
+        fif = FreeImage_GetFileTypeFromMemory(stream, 0);
+        if ((fif == FIF_UNKNOWN) || !FreeImage_FIFSupportsReading(fif)) {
+          rb_raise(rb_eTypeError, "Unknown file format");
+        }
+
+        FIBITMAP *bitmap = NULL;
+        VALUE result = Qnil;
+        int flags = fif == FIF_JPEG ? JPEG_ACCURATE : 0;
+        bitmap = FreeImage_LoadFromMemory(fif, stream, flags);
+        FreeImage_CloseMemory(stream);
+        if (bitmap) {
+          result = wrap_and_yield(bitmap, self, fif);
+        }
+        return result;
       }
     END
 

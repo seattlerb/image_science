@@ -46,6 +46,33 @@ class TestImageScience < Test::Unit::TestCase
     end
   end
 
+  def test_class_with_image_from_memory
+    data = File.new(@path).binmode.read
+
+    ImageScience.with_image_from_memory data do |img|
+      assert_kind_of ImageScience, img
+      assert_equal @h, img.height
+      assert_equal @w, img.width
+      assert img.save(@tmppath)
+    end
+
+    assert File.exists?(@tmppath)
+
+    ImageScience.with_image @tmppath do |img|
+      assert_kind_of ImageScience, img
+      assert_equal @h, img.height
+      assert_equal @w, img.width
+    end
+  end
+
+  def test_class_with_image_from_memory_empty_string
+    assert_raises TypeError do
+      ImageScience.with_image_from_memory "" do |img|
+        flunk
+      end
+    end
+  end
+
   def test_resize
     ImageScience.with_image @path do |img|
       img.resize(25, 25) do |thumb|
