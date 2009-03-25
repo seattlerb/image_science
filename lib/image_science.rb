@@ -156,6 +156,22 @@ class ImageScience
           VALUE result = Qnil;
           int flags = fif == FIF_JPEG ? JPEG_ACCURATE : 0;
           if (bitmap = FreeImage_Load(fif, input, flags)) {
+            FITAG *tagValue = NULL;
+            FreeImage_GetMetadata(FIMD_EXIF_MAIN, bitmap, "Orientation", &tagValue); 
+            switch (tagValue == NULL ? 0 : *((short *) FreeImage_GetTagValue(tagValue))) {
+              case 6:
+                bitmap = FreeImage_RotateClassic(bitmap, 270);
+                break;
+              case 3:
+                bitmap = FreeImage_RotateClassic(bitmap, 180);
+                break;
+              case 8:
+                bitmap = FreeImage_RotateClassic(bitmap, 90);
+                break;
+              default:
+               break;
+            }
+
             result = wrap_and_yield(bitmap, self, fif);
           }
           return result;
