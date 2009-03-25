@@ -8,7 +8,9 @@ Hoe.new('image_science', ImageScience::VERSION) do |image_science|
   image_science.developer('Ryan Davis', 'ryand-ruby@zenspider.com')
 
   image_science.extra_deps << 'RubyInline'
+
   image_science.clean_globs << 'blah*png' << 'images/*_thumb.*'
+  image_science.clean_globs << File.expand_path("~/.ruby_inline")
 end
 
 # vim: syntax=Ruby
