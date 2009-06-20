@@ -185,8 +185,8 @@ class ImageScience
         FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 
         Check_Type(image_data, T_STRING);
-        BYTE *image_data_ptr    = (BYTE*)RSTRING(image_data)->ptr;
-        DWORD image_data_length = RSTRING(image_data)->len;
+        BYTE *image_data_ptr    = (BYTE*)RSTRING_PTR(image_data);
+        DWORD image_data_length = RSTRING_LEN(image_data);
         FIMEMORY *stream = FreeImage_OpenMemory(image_data_ptr, image_data_length);
 
         if (NULL == stream) {
