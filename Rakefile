@@ -2,15 +2,15 @@
 
 require 'rubygems'
 require 'hoe'
-require './lib/image_science.rb'
 
-Hoe.new('image_science', ImageScience::VERSION) do |image_science|
-  image_science.developer('Ryan Davis', 'ryand-ruby@zenspider.com')
+Hoe.spec 'image_science' do
+  developer 'Ryan Davis', 'ryand-ruby@zenspider.com'
 
-  image_science.extra_deps << 'RubyInline'
-
-  image_science.clean_globs << 'blah*png' << 'images/*_thumb.*'
-  image_science.clean_globs << File.expand_path("~/.ruby_inline")
+  extra_deps  << 'RubyInline'
+  clean_globs << 'blah*png' << 'images/*_thumb.*'
+  clean_globs << File.expand_path("~/.ruby_inline")
 end
+
+task :test => :clean
 
 # vim: syntax=Ruby
