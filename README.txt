@@ -1,7 +1,7 @@
-ImageScience
-    http://seattlerb.rubyforge.org/ImageScience.html
-    http://rubyforge.org/projects/seattlerb
-    by Ryan Davis
+= ImageScience
+
+* http://seattlerb.rubyforge.org/ImageScience.html
+* http://rubyforge.org/projects/seattlerb
 
 == DESCRIPTION:
 
@@ -44,7 +44,7 @@ For more information including build steps, see http://seattlerb.rubyforge.org/
 
 (The MIT License)
 
-Copyright (c) 2006-2007 Ryan Davis, Seattle.rb
+Copyright (c) 2006-2009 Ryan Davis, Seattle.rb
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
