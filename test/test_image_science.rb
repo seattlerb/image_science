@@ -48,8 +48,10 @@ class TestImageScience < MiniTest::Unit::TestCase
   end
 
   def test_class_with_image_missing_with_img_extension
-    assert_nil ImageScience.with_image("nope#{@path}") do |img|
-      flunk
+    assert_raises RuntimeError do
+      assert_nil ImageScience.with_image("nope#{@path}") do |img|
+        flunk
+      end
     end
   end
 
