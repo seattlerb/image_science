@@ -94,16 +94,22 @@ class ImageScience
     end
 
     builder.add_link_flags "-lfreeimage"
-    # TODO: detect PPC
-    builder.add_link_flags "-lstdc++" # only needed on PPC for some reason. lame
+    unless RUBY_PLATFORM =~ /mswin/
+      builder.add_link_flags "-lfreeimage"
+      # TODO: detect PPC
+      builder.add_link_flags "-lstdc++" # only needed on PPC for some reason
+    else
+      builder.add_link_flags "freeimage.lib"
+    end
     builder.include '"FreeImage.h"'
 
     builder.prefix <<-"END"
-      #define GET_BITMAP(name) FIBITMAP *(name); Data_Get_Struct(self, FIBITMAP, (name)); if (!(name)) rb_raise(rb_eTypeError, "Bitmap has already been freed")
+      #define GET_BITMAP(name) Data_Get_Struct(self, FIBITMAP, (name)); if (!(name)) rb_raise(rb_eTypeError, "Bitmap has already been freed");
     END
 
     builder.prefix <<-"END"
       VALUE unload(VALUE self) {
+        FIBITMAP *bitmap;
         GET_BITMAP(bitmap);
 
         FreeImage_Unload(bitmap);
@@ -149,13 +155,14 @@ class ImageScience
     builder.c_singleton <<-"END"
       VALUE with_image(char * input) {
         FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
+        int flags;
 
         fif = FreeImage_GetFileType(input, 0);
         if (fif == FIF_UNKNOWN) fif = FreeImage_GetFIFFromFilename(input);
         if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsReading(fif)) {
           FIBITMAP *bitmap;
           VALUE result = Qnil;
-          int flags = fif == FIF_JPEG ? JPEG_ACCURATE : 0;
+          flags = fif == FIF_JPEG ? JPEG_ACCURATE : 0;
           if (bitmap = FreeImage_Load(fif, input, flags)) {
             FITAG *tagValue = NULL;
             FreeImage_GetMetadata(FIMD_EXIF_MAIN, bitmap, "Orientation", &tagValue); 
@@ -213,7 +220,7 @@ class ImageScience
 
     builder.c <<-"END"
       VALUE with_crop(int l, int t, int r, int b) {
-        FIBITMAP *copy;
+        FIBITMAP *copy, *bitmap;
         VALUE result = Qnil;
         GET_BITMAP(bitmap);
 
@@ -227,6 +234,7 @@ class ImageScience
 
     builder.c <<-"END"
       int height() {
+        FIBITMAP *bitmap;
         GET_BITMAP(bitmap);
 
         return FreeImage_GetHeight(bitmap);
@@ -235,6 +243,7 @@ class ImageScience
 
     builder.c <<-"END"
       int width() {
+        FIBITMAP *bitmap;
         GET_BITMAP(bitmap);
 
         return FreeImage_GetWidth(bitmap);
@@ -243,10 +252,11 @@ class ImageScience
 
     builder.c <<-"END"
       VALUE resize(long w, long h) {
+        FIBITMAP *bitmap, *image;
         if (w <= 0) rb_raise(rb_eArgError, "Width <= 0");
         if (h <= 0) rb_raise(rb_eArgError, "Height <= 0");
         GET_BITMAP(bitmap);
-        FIBITMAP *image = FreeImage_Rescale(bitmap, w, h, FILTER_CATMULLROM);
+        image = FreeImage_Rescale(bitmap, w, h, FILTER_CATMULLROM);
         if (image) {
           copy_icc_profile(self, bitmap, image);
           return wrap_and_yield(image, self, 0);
@@ -257,11 +267,13 @@ class ImageScience
 
     builder.c <<-"END"
       VALUE save(char * output) {
+        int flags;
+        FIBITMAP *bitmap;
         FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(output);
         if (fif == FIF_UNKNOWN) fif = FIX2INT(rb_iv_get(self, "@file_type"));
         if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) {
           GET_BITMAP(bitmap);
-          int flags = fif == FIF_JPEG ? JPEG_QUALITYSUPERB : 0;
+          flags = fif == FIF_JPEG ? JPEG_QUALITYSUPERB : 0;
           BOOL result = 0, unload = 0;
 
           if (fif == FIF_PNG) FreeImage_DestroyICCProfile(bitmap);
