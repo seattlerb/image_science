@@ -94,6 +94,7 @@ class ImageScience
     end
 
     builder.add_link_flags "-lfreeimage"
+    # TODO: detect PPC
     builder.add_link_flags "-lstdc++" # only needed on PPC for some reason. lame
     builder.include '"FreeImage.h"'
 
