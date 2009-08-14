@@ -1,3 +1,10 @@
+=== 1.2.1 / 2009-08-14
+
+* 2 minor enhancements:
+
+  * Added luis' patches to make it build properly on windows.
+  * with_image now raises on missing/bad files.
+
 == 1.2.0 / 2009-06-23
 
 * 7 minor enhancements:
