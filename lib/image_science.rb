@@ -266,14 +266,15 @@ class ImageScience
     END
 
     builder.c <<-"END"
-      VALUE save_to_memory(VALUE image_data) {
+      VALUE save_to_memory() {
         int flags;
         FIBITMAP *bitmap;
         FREE_IMAGE_FORMAT fif = FIX2INT(rb_iv_get(self, "@file_type"));
         if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) {
-          Check_Type(image_data, T_STRING);
-          BYTE *image_data_ptr = (BYTE*)RSTRING_PTR(image_data);
-          DWORD image_data_length = RSTRING_LEN(image_data);
+          BYTE* image_data_ptr = 0;
+          DWORD image_data_length = 0;
+          RSTRING data;
+
           FIMEMORY *stream = FreeImage_OpenMemory(image_data_ptr, image_data_length);
 
           if (NULL == stream) {
@@ -292,7 +293,11 @@ class ImageScience
 
           if (unload) FreeImage_Unload(bitmap);
 
-          return result ? Qtrue : Qfalse;
+          if (result && FreeImage_AcquireMemory(stream, &image_data_ptr, &image_data_length)) {
+              data = rb_str_new(image_data_ptr, image_data_length);
+          }
+          FreeImage_CloseMemory(stream);
+          return data;
         }
         rb_raise(rb_eTypeError, "Unknown file format");
       }
