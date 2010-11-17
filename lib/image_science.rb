@@ -88,9 +88,11 @@ class ImageScience
   end
 
   inline do |builder|
-    if test ?d, "/opt/local" then
-      builder.add_compile_flags "-I/opt/local/include"
-      builder.add_link_flags "-L/opt/local/lib"
+    ["/opt/local", "/usr/local"].each do |library_directory|
+      if test ?d, "#{library_directory}/include" then
+        builder.add_compile_flags "-I#{library_directory}/include"
+        builder.add_link_flags "-L#{library_directory}/lib"
+      end
     end
 
     builder.add_link_flags "-lfreeimage"
