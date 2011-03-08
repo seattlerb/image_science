@@ -13,6 +13,8 @@ Gem::Specification.new do |s|
 thumbnails -- and kicks the living crap out of RMagick. Oh, and it
 doesn't leak memory like a sieve. :)
 
+This fork does not require RubyInline.
+
 For more information (on the original variant), see http://seattlerb.rubyforge.org/ImageScience.html
 }
 
