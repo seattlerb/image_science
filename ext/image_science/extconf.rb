@@ -7,4 +7,4 @@ dir_config("hello", include_path, lib_path)
 
 have_library('freeimage')
 
-create_makefile("hello")
+create_makefile("image_science")
