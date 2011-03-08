@@ -1,3 +1,3 @@
 class ImageScience
-  VERSION = '1.3.Asynchrony'
+  VERSION = '1.3.1.Asynchrony'
 end
