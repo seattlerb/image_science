@@ -1,3 +1,6 @@
 pkg/*
 *.gem
 .bundle
+mkmf.log
+Makefile
+lib/image_science/extension.so
