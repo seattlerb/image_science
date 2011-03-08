@@ -193,7 +193,7 @@ static VALUE save(VALUE self, VALUE _output) {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void Init_ImageScience() {
+  void Init_extension() {
     VALUE c = rb_cObject;
     c = rb_const_get(c, rb_intern("ImageScience"));
 
