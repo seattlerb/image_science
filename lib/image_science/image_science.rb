@@ -80,23 +80,4 @@ class ImageScience
       end
     end
   end
-
-#  inline do |builder|
-#    %w[/opt/local /usr/local].each do |dir|
-#      if File.directory? "#{dir}/include" then
-#        builder.add_compile_flags "-I#{dir}/include"
-#        builder.add_link_flags "-L#{dir}/lib"
-#      end
-#    end
-#
-#    builder.add_link_flags "-lfreeimage"
-#    unless RUBY_PLATFORM =~ /mswin/
-#      builder.add_link_flags "-lfreeimage"
-#      # TODO: detect PPC
-#      builder.add_link_flags "-lstdc++" # only needed on PPC for some reason
-#    else
-#      builder.add_link_flags "freeimage.lib"
-#    end
-#  end
-
 end
