@@ -33,11 +33,13 @@ void copy_icc_profile(VALUE self, FIBITMAP *from, FIBITMAP *to) {
   }
 }
 
+static char* lastFreeImageMessage = NULL;
 
 void FreeImageMessageHandler(FREE_IMAGE_FORMAT fif, const char *message) {
-  fprintf(stderr, "FreeImage [%s] - %s\n",
-                  (fif == FIF_UNKNOWN) ? "???" : FreeImage_GetFormatFromFIF(fif),
-                  message);
+  if (lastFreeImageMessage != NULL)
+    free(lastFreeImageMessage);
+
+  lastFreeImageMessage = strdup(message);
 }
 
 
@@ -71,7 +73,13 @@ static VALUE with_image(VALUE self, VALUE _input) {
       }
 
       result = wrap_and_yield(bitmap, self, fif);
+    } else {
+      rb_raise(rb_eTypeError, 
+              "Failed to load image from file %s: %s", 
+              input,
+              lastFreeImageMessage != NULL ? lastFreeImageMessage : "Unspecified error");
     }
+
     return (result);
   }
   rb_raise(rb_eTypeError, "Unknown file format");
