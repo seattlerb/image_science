@@ -34,11 +34,10 @@ void copy_icc_profile(VALUE self, FIBITMAP *from, FIBITMAP *to) {
 }
 
 
-void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message) {
-  rb_raise(rb_eRuntimeError,
-           "FreeImage exception for type %s: %s",
-            (fif == FIF_UNKNOWN) ? "???" : FreeImage_GetFormatFromFIF(fif),
-            message);
+void FreeImageMessageHandler(FREE_IMAGE_FORMAT fif, const char *message) {
+  fprintf(stderr, "FreeImage [%s] - %s\n",
+                  (fif == FIF_UNKNOWN) ? "???" : FreeImage_GetFormatFromFIF(fif),
+                  message);
 }
 
 
@@ -204,7 +203,7 @@ extern "C" {
     rb_define_method(c, "with_crop", (VALUE(*)(ANYARGS))with_crop, 4);
     rb_define_singleton_method(c, "with_image", (VALUE(*)(ANYARGS))with_image, 1);
     rb_define_singleton_method(c, "with_image_from_memory", (VALUE(*)(ANYARGS))with_image_from_memory, 1);
-FreeImage_SetOutputMessage(FreeImageErrorHandler);
+    FreeImage_SetOutputMessage(FreeImageMessageHandler);
 
   }
 #ifdef __cplusplus
