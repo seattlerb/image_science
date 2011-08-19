@@ -179,7 +179,7 @@ static VALUE save(VALUE self, VALUE _output) {
   if (fif == FIF_UNKNOWN) fif = FIX2INT(rb_iv_get(self, "@file_type"));
   if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) {
     GET_BITMAP(bitmap);
-    flags = fif == FIF_JPEG ? JPEG_QUALITYSUPERB : 0;
+    flags = fif == FIF_JPEG ? JPEG_QUALITYGOOD : 0;
     BOOL result = 0, unload = 0;
 
     if (fif == FIF_PNG) FreeImage_DestroyICCProfile(bitmap);
