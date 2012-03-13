@@ -15,45 +15,42 @@ class ImageScience
 
   ##
   # The top-level image loader opens +path+ and then yields the image.
-
-  def self.with_image(path) # :yields: image
-  end
+  #
+  # :singleton-method: with_image
 
   ##
-  # The top-level image loader, opens an image from the string +data+ and then yields the image.
-
-  def self.with_image_from_memory(data) # :yields: image
-  end
+  # The top-level image loader, opens an image from the string +data+
+  # and then yields the image.
+  #
+  # :singleton-method: with_image_from_memory
 
   ##
   # Crops an image to +left+, +top+, +right+, and +bottom+ and then
   # yields the new image.
-
-  def with_crop(left, top, right, bottom) # :yields: image
-  end
+  #
+  # :method: with_crop
 
   ##
   # Returns the width of the image, in pixels.
-
-  def width; end
+  #
+  # :method: width
 
   ##
   # Returns the height of the image, in pixels.
-
-  def height; end
+  #
+  # :method: height
 
   ##
   # Saves the image out to +path+. Changing the file extension will
   # convert the file type to the appropriate format.
-
-  def save(path); end
+  #
+  # :method: save
 
   ##
   # Resizes the image to +width+ and +height+ using a cubic-bspline
   # filter and yields the new image.
-
-  def resize(width, height) # :yields: image
-  end
+  #
+  # :method: resize
 
   ##
   # Creates a proportional thumbnail of the image scaled so its longest
@@ -187,6 +184,7 @@ class ImageScience
           return result;
         }
         rb_raise(rb_eTypeError, "Unknown file format");
+        return Qnil;
       }
     END
 
@@ -196,7 +194,7 @@ class ImageScience
 
         Check_Type(image_data, T_STRING);
         BYTE *image_data_ptr    = (BYTE*)RSTRING_PTR(image_data);
-        DWORD image_data_length = RSTRING_LEN(image_data);
+        DWORD image_data_length = (DWORD)RSTRING_LEN(image_data);
         FIMEMORY *stream = FreeImage_OpenMemory(image_data_ptr, image_data_length);
 
         if (NULL == stream) {
@@ -253,7 +251,7 @@ class ImageScience
     END
 
     builder.c <<-"END"
-      VALUE resize(long w, long h) {
+      VALUE resize(int w, int h) {
         FIBITMAP *bitmap, *image;
         if (w <= 0) rb_raise(rb_eArgError, "Width <= 0");
         if (h <= 0) rb_raise(rb_eArgError, "Height <= 0");
@@ -289,6 +287,7 @@ class ImageScience
           return result ? Qtrue : Qfalse;
         }
         rb_raise(rb_eTypeError, "Unknown file format");
+        return Qnil;
       }
     END
   end
