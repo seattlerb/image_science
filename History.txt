@@ -1,3 +1,14 @@
+=== 1.2.2 / 2012-03-13
+
+* 1 minor enhancement:
+
+  * Extended build to look for homebrew setup (hcatlin)
+
+* 2 bug fixes:
+
+  * Fixed 1.9 warnings, clang warnings, etc...
+  * Fixed compilation error when ruby's config mandates C89 style decls. (nocode)
+
 === 1.2.1 / 2009-08-14
 
 * 2 minor enhancements:
