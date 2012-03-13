@@ -191,11 +191,17 @@ class ImageScience
     builder.c_singleton <<-"END"
       VALUE with_image_from_memory(VALUE image_data) {
         FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
+        BYTE *image_data_ptr;
+        DWORD image_data_length;
+        FIMEMORY *stream;
+        FIBITMAP *bitmap = NULL;
+        VALUE result = Qnil;
+        int flags;
 
         Check_Type(image_data, T_STRING);
-        BYTE *image_data_ptr    = (BYTE*)RSTRING_PTR(image_data);
-        DWORD image_data_length = (DWORD)RSTRING_LEN(image_data);
-        FIMEMORY *stream = FreeImage_OpenMemory(image_data_ptr, image_data_length);
+        image_data_ptr    = (BYTE*)RSTRING_PTR(image_data);
+        image_data_length = (DWORD)RSTRING_LEN(image_data);
+        stream = FreeImage_OpenMemory(image_data_ptr, image_data_length);
 
         if (NULL == stream) {
           rb_raise(rb_eTypeError, "Unable to open image_data");
@@ -206,9 +212,7 @@ class ImageScience
           rb_raise(rb_eTypeError, "Unknown file format");
         }
 
-        FIBITMAP *bitmap = NULL;
-        VALUE result = Qnil;
-        int flags = fif == FIF_JPEG ? JPEG_ACCURATE : 0;
+        flags = fif == FIF_JPEG ? JPEG_ACCURATE : 0;
         bitmap = FreeImage_LoadFromMemory(fif, stream, flags);
         FreeImage_CloseMemory(stream);
         if (bitmap) {
@@ -272,9 +276,9 @@ class ImageScience
         FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(output);
         if (fif == FIF_UNKNOWN) fif = FIX2INT(rb_iv_get(self, "@file_type"));
         if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) {
+          BOOL result = 0, unload = 0;
           GET_BITMAP(bitmap);
           flags = fif == FIF_JPEG ? JPEG_QUALITYSUPERB : 0;
-          BOOL result = 0, unload = 0;
 
           if (fif == FIF_PNG) FreeImage_DestroyICCProfile(bitmap);
           if (fif == FIF_JPEG && FreeImage_GetBPP(bitmap) != 24)
