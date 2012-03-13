@@ -165,7 +165,7 @@ class ImageScience
           FIBITMAP *bitmap;
           VALUE result = Qnil;
           flags = fif == FIF_JPEG ? JPEG_ACCURATE : 0;
-          if (bitmap = FreeImage_Load(fif, input, flags)) {
+          if ((bitmap = FreeImage_Load(fif, input, flags))) {
             FITAG *tagValue = NULL;
             FreeImage_GetMetadata(FIMD_EXIF_MAIN, bitmap, "Orientation", &tagValue); 
             switch (tagValue == NULL ? 0 : *((short *) FreeImage_GetTagValue(tagValue))) {
@@ -226,7 +226,7 @@ class ImageScience
         VALUE result = Qnil;
         GET_BITMAP(bitmap);
 
-        if (copy = FreeImage_Copy(bitmap, l, t, r, b)) {
+        if ((copy = FreeImage_Copy(bitmap, l, t, r, b))) {
           copy_icc_profile(self, bitmap, copy);
           result = wrap_and_yield(copy, self, 0);
         }
