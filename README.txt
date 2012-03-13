@@ -13,18 +13,18 @@ For more information including build steps, see http://seattlerb.rubyforge.org/
 
 == FEATURES/PROBLEMS:
 
-* Glorious graphics manipulation magi... errr, SCIENCE! in less than 200 LoC!
+* Glorious graphics manipulation magi... errr, SCIENCE! in less than 300 LoC!
 * Supports square and proportional thumbnails, as well as arbitrary resizes.
 * Pretty much any graphics format you could want. No really.
 
 == SYNOPSYS:
 
-  ImageScience.with_image(file) do |img|
-    img.cropped_thumbnail(100) do |thumb|
+  ImageScience.with_image file do |img|
+    img.cropped_thumbnail 100 do |thumb|
       thumb.save "#{file}_cropped.png"
     end
 
-    img.thumbnail(100) do |thumb|
+    img.thumbnail 100 do |thumb|
       thumb.save "#{file}_thumb.png"
     end
   end
