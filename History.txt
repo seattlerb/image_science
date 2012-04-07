@@ -20,7 +20,7 @@
 
 * 7 minor enhancements:
 
-  *	Moved quick_thumb to bin/image_science_thumb and properly added.
+  * Moved quick_thumb to bin/image_science_thumb and properly added.
   * Added -s (square) flag to bin/image_science_thumb
   * Added autorotating on image load. (choonkeat)
   * Added ruby_inline to clean globs
