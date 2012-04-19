@@ -54,11 +54,19 @@ class ImageScience
 
   ##
   # Creates a proportional thumbnail of the image scaled so its longest
-  # edge is resized to +size+ and yields the new image.
+  # edge is resized to +size+ and yields the new image. Can be instructed
+  # to use the shortest edge of the original image with +use_short_edge+.
 
-  def thumbnail(size) # :yields: image
+  def thumbnail(size, use_short_edge = false) # :yields: image
     w, h = width, height
-    scale = size.to_f / (w > h ? w : h)
+
+    div = if use_short_edge
+            w < h ? w : h
+          else
+            w > h ? w : h
+          end
+
+    scale = size.to_f / div
 
     self.resize((w * scale).to_i, (h * scale).to_i) do |image|
       yield image
@@ -82,6 +90,32 @@ class ImageScience
         yield thumb
       end
     end
+  end
+
+  ##
+  # Creates a cropped image of the resized original image using +w+ and +h+.
+
+  def cropped_resize w, h
+    size = w > h ? w : h
+
+    use_short_edge = ratio > h / w.to_f
+
+    thumbnail(size, use_short_edge) do |img|
+      l = (img.width - w) / 2
+      r = l + w
+      t = (img.height - h) / 2
+      b = t + h
+      img.with_crop(l, t, r, b) do |image|
+        yield image
+      end
+    end
+  end
+
+  ##
+  # Aspect ratio of image
+
+  def ratio
+    height / width.to_f
   end
 
   inline do |builder|
