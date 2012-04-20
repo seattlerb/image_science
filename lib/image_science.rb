@@ -93,11 +93,14 @@ class ImageScience
   end
 
   ##
-  # Creates a cropped image of the resized original image using +w+ and +h+.
+  # Creates a cropped version of the resized original specified
+  # by +w+ and +h+.
 
   def cropped_resize w, h
-    size = w > h ? w : h
+    raise ArgumentError.new 'Height <= 0' if h <= 0
+    raise ArgumentError.new 'Width <= 0'  if w <= 0
 
+    size           = w > h ? w : h
     desired_ratio  = h / w.to_f
     use_short_edge = ratio > desired_ratio
 
