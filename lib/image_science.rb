@@ -94,9 +94,9 @@ class ImageScience
 
   ##
   # Creates a cropped version of the resized original specified
-  # by +w+ and +h+.
+  # by +w+ and +h+ and yields the new image.
 
-  def cropped_resize w, h
+  def cropped_resize(w, h) # :yields: image
     raise ArgumentError.new 'Height <= 0' if h <= 0
     raise ArgumentError.new 'Width <= 0'  if w <= 0
 
@@ -116,7 +116,7 @@ class ImageScience
   end
 
   ##
-  # Aspect ratio of image
+  # Aspect ratio of image.
 
   def ratio
     height / width.to_f
