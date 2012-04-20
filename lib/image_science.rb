@@ -98,7 +98,8 @@ class ImageScience
   def cropped_resize w, h
     size = w > h ? w : h
 
-    use_short_edge = ratio > h / w.to_f
+    desired_ratio  = h / w.to_f
+    use_short_edge = ratio > desired_ratio
 
     thumbnail(size, use_short_edge) do |img|
       l = (img.width - w) / 2
