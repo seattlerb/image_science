@@ -1,10 +1,16 @@
-dir = File.expand_path "~/.ruby_inline"
-if test ?d, dir then
-  require 'fileutils'
-  puts "nuking #{dir}"
-  # force removal, Windoze is bitching at me, something to hunt later...
-  FileUtils.rm_r dir, :force => true
-end
+# instead of using Inline's regular directory in the user's home, use
+# a temporary directory
+#
+# dir = File.expand_path "~/.ruby_inline"
+# if test ?d, dir then
+#   require 'fileutils'
+#   puts "nuking #{dir}"
+#   # force removal, Windoze is bitching at me, something to hunt later...
+#   FileUtils.rm_r dir, :force => true
+# end
+
+require 'tmpdir'
+ENV['INLINEDIR'] = Dir.mktmpdir
 
 require 'rubygems'
 require 'minitest/unit'
