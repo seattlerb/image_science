@@ -1,9 +1,9 @@
-dir = File.expand_path "~/.ruby_inline"
-if test ?d, dir then
+require 'tmpdir'
+dir = Dir.mktmpdir "image_science."
+ENV['INLINEDIR'] = dir
+MiniTest::Unit.after_tests do
   require 'fileutils'
-  puts "nuking #{dir}"
-  # force removal, Windoze is bitching at me, something to hunt later...
-  FileUtils.rm_r dir, :force => true
+  FileUtils.rm_rf dir
 end
 
 require 'rubygems'
