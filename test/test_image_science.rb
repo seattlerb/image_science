@@ -157,4 +157,21 @@ class TestImageScience < MiniTest::Unit::TestCase
 
     refute File.exists?(@tmppath)
   end
+
+  def test_thumbnail
+    ImageScience.with_image @path do |img|
+      img.thumbnail(29) do |thumb|
+        assert thumb.save(@tmppath)
+      end
+    end
+
+    assert File.exists?(@tmppath)
+
+    ImageScience.with_image @tmppath do |img|
+      assert_kind_of ImageScience, img
+      assert_equal 29, img.height
+      assert_equal 29, img.width
+    end
+  end
+
 end
