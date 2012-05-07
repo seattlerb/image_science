@@ -1,3 +1,10 @@
+=== 1.2.3 / 2012-05-07
+
+* 2 bug fixes:
+
+  * Fixed thumbnail float imprecision errors. (jdelStrother)
+  * Switched to using tmpdir for INLINEDIR to avoid failures in CI environments w/o homedirs
+
 === 1.2.2 / 2012-03-13
 
 * 1 minor enhancement:
