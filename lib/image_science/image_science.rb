@@ -57,7 +57,7 @@ class ImageScience
     w, h = width, height
     scale = size.to_f / (w > h ? w : h)
 
-    self.resize((w * scale).to_i, (h * scale).to_i) do |image|
+    self.resize((w * scale).round, (h * scale).round) do |image|
       yield image
     end
   end
