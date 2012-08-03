@@ -142,6 +142,7 @@ class ImageScience
 
     builder.prefix <<-"END"
       void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message) {
+        if (! RTEST(ruby_debug)) return;
         rb_raise(rb_eRuntimeError,
                  "FreeImage exception for type %s: %s",
                   (fif == FIF_UNKNOWN) ? "???" : FreeImage_GetFormatFromFIF(fif),
