@@ -174,4 +174,18 @@ class TestImageScience < MiniTest::Unit::TestCase
     end
   end
 
+  def test_auto_rotate_from_file
+    ImageScience.with_image "test/portrait.jpg" do |img|
+      assert_equal 50, img.height
+      assert_equal 38, img.width
+    end
+  end
+
+  def test_auto_rotate_from_memory
+    data = File.new("test/portrait.jpg").binmode.read
+    ImageScience.with_image_from_memory data do |img|
+      assert_equal 50, img.height
+      assert_equal 38, img.width
+    end
+  end
 end
