@@ -1,3 +1,9 @@
+=== 1.2.4 / 2012-11-23
+
+* 1 minor enhancement:
+
+  * Extract out orientation logic and add it to with_image_from_memory. (bhenderson)
+
 === 1.2.3 / 2012-05-07
 
 * 2 bug fixes:
