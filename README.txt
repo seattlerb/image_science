@@ -17,7 +17,7 @@ For more information including build steps, see http://seattlerb.rubyforge.org/
 * Supports square and proportional thumbnails, as well as arbitrary resizes.
 * Pretty much any graphics format you could want. No really.
 
-== SYNOPSYS:
+== SYNOPSIS:
 
   ImageScience.with_image file do |img|
     img.cropped_thumbnail 100 do |thumb|
