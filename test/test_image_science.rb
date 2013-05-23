@@ -1,7 +1,7 @@
 require 'tmpdir'
 dir = Dir.mktmpdir "image_science."
 ENV['INLINEDIR'] = dir
-MiniTest::Unit.after_tests do
+Minitest.after_run do
   require 'fileutils'
   FileUtils.rm_rf dir
 end
@@ -11,7 +11,7 @@ require 'minitest/unit'
 require 'minitest/autorun' if $0 == __FILE__
 require 'image_science'
 
-class TestImageScience < MiniTest::Unit::TestCase
+class TestImageScience < Minitest::Test
   def setup
     @path = 'test/pix.png'
     @tmppath = 'test/pix-tmp.png'
