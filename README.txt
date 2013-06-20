@@ -14,7 +14,8 @@ For more information including build steps, see http://seattlerb.rubyforge.org/
 == FEATURES/PROBLEMS:
 
 * Glorious graphics manipulation magi... errr, SCIENCE! in less than 300 LoC!
-* Supports square and proportional thumbnails, as well as arbitrary resizes.
+* Supports square and proportional thumbnails.
+* Supports arbitrary and proportional resizes.
 * Pretty much any graphics format you could want. No really.
 
 == SYNOPSIS:
