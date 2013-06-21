@@ -1,3 +1,9 @@
+=== 1.2.5 / 2013-06-20
+
+* 1 bug fix:
+
+  * Fixed memory leak in the ReOrient function. (Blargel/abnerqian)
+
 === 1.2.4 / 2012-11-23
 
 * 1 minor enhancement:
