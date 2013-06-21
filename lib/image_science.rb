@@ -151,25 +151,25 @@ class ImageScience
 
     builder.prefix <<-"END"
       FIBITMAP* ReOrient(FIBITMAP *bitmap) {
-          FITAG *tagValue = NULL;
-          FIBITMAP *oldBitmap = bitmap;
-          FreeImage_GetMetadata(FIMD_EXIF_MAIN, bitmap, "Orientation", &tagValue);
-          switch (tagValue == NULL ? 0 : *((short *) FreeImage_GetTagValue(tagValue))) {
-            case 6:
-              bitmap = FreeImage_RotateClassic(bitmap, 270);
-              break;
-            case 3:
-              bitmap = FreeImage_RotateClassic(bitmap, 180);
-              break;
-            case 8:
-              bitmap = FreeImage_RotateClassic(bitmap, 90);
-              break;
-            default:
-             bitmap = FreeImage_Clone(bitmap);
-             break;
-          }
-          FreeImage_Unload(oldBitmap);
-          return bitmap;
+        FITAG *tagValue = NULL;
+        FIBITMAP *oldBitmap = bitmap;
+        FreeImage_GetMetadata(FIMD_EXIF_MAIN, bitmap, "Orientation", &tagValue);
+        switch (tagValue == NULL ? 0 : *((short *) FreeImage_GetTagValue(tagValue))) {
+          case 6:
+            bitmap = FreeImage_RotateClassic(bitmap, 270);
+            break;
+          case 3:
+            bitmap = FreeImage_RotateClassic(bitmap, 180);
+            break;
+          case 8:
+            bitmap = FreeImage_RotateClassic(bitmap, 90);
+            break;
+          default:
+            bitmap = FreeImage_Clone(bitmap);
+            break;
+        }
+        FreeImage_Unload(oldBitmap);
+        return bitmap;
       }
     END
 
