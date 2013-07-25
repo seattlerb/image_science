@@ -90,7 +90,7 @@ class ImageScience
   # convert the file type to the appropriate format.
 
   def save(path)
-    File.open(path, "wb"){|file| file.write buffer(File.extname(path)) }
+    File.open(path, "wb"){|file| file.write buffer(path) }
   end
 
 
