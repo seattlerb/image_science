@@ -41,10 +41,11 @@ class ImageScience
   # :method: height
 
   ##
-  # Saves the image out to +path+. Changing the file extension will
-  # convert the file type to the appropriate format.
+  # Saves the image to memory and returns its String representation.
+  # Changing the file extension will convert the file type to the
+  # appropriate format.
   #
-  # :method: save
+  # :method: buffer
 
   ##
   # Resizes the image to +width+ and +height+ using a cubic-bspline
@@ -83,6 +84,15 @@ class ImageScience
       end
     end
   end
+
+  ##
+  # Saves the image out to +path+. Changing the file extension will
+  # convert the file type to the appropriate format.
+
+  def save(path)
+    File.open(path, "wb"){|file| file.write buffer(File.extname(path)) }
+  end
+
 
   inline do |builder|
     %w[/opt/local /usr/local].each do |dir|
@@ -280,28 +290,46 @@ class ImageScience
     END
 
     builder.c <<-"END"
-      VALUE save(char * output) {
+      VALUE buffer(char * extension) {
+        VALUE str;
         int flags;
         FIBITMAP *bitmap;
-        FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(output);
+        FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(extension);
+        FIMEMORY *mem = NULL;
+        long file_size;
+        BYTE *mem_buffer = NULL;
+        DWORD size_in_bytes = 0;
+
         if (fif == FIF_UNKNOWN) fif = FIX2INT(rb_iv_get(self, "@file_type"));
         if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) {
-          BOOL result = 0, unload = 0;
           GET_BITMAP(bitmap);
           flags = fif == FIF_JPEG ? JPEG_QUALITYSUPERB : 0;
+          BOOL result = 0, unload = 0;
 
           if (fif == FIF_PNG) FreeImage_DestroyICCProfile(bitmap);
           if (fif == FIF_JPEG && FreeImage_GetBPP(bitmap) != 24)
             bitmap = FreeImage_ConvertTo24Bits(bitmap), unload = 1; // sue me
 
-          result = FreeImage_Save(fif, bitmap, output, flags);
+          mem = FreeImage_OpenMemory(0,0);
+          result = FreeImage_SaveToMemory(fif, bitmap, mem, flags);
 
+          // get the buffer from the memory stream
+          FreeImage_AcquireMemory(mem, &mem_buffer, &size_in_bytes);
+
+          // convert to ruby string
+          str = rb_str_new(mem_buffer, size_in_bytes);
+
+          // clean up
           if (unload) FreeImage_Unload(bitmap);
+          FreeImage_CloseMemory(mem);
 
-          return result ? Qtrue : Qfalse;
+          if (result) {
+            return str;
+          } else {
+            return Qfalse;
+          }
         }
         rb_raise(rb_eTypeError, "Unknown file format");
-        return Qnil;
       }
     END
   end
