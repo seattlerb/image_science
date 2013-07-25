@@ -289,18 +289,22 @@ class ImageScience
       }
     END
 
-    builder.c <<-"END"
-      VALUE buffer(char * extension) {
-        VALUE str;
+    builder.c_raw <<-"END"
+      VALUE buffer(int argc, VALUE *argv, VALUE self) {
+        VALUE output;
         int flags;
         FIBITMAP *bitmap;
-        FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(extension);
         FIMEMORY *mem = NULL;
         long file_size;
         BYTE *mem_buffer = NULL;
         DWORD size_in_bytes = 0;
+        FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
+        VALUE ext;
 
+        rb_scan_args(argc, argv, "01", &ext);
+        if (RTEST(ext)) fif = FreeImage_GetFIFFromFilename(RSTRING_PTR(ext));
         if (fif == FIF_UNKNOWN) fif = FIX2INT(rb_iv_get(self, "@file_type"));
+
         if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) {
           GET_BITMAP(bitmap);
           flags = fif == FIF_JPEG ? JPEG_QUALITYSUPERB : 0;
@@ -317,19 +321,16 @@ class ImageScience
           FreeImage_AcquireMemory(mem, &mem_buffer, &size_in_bytes);
 
           // convert to ruby string
-          str = rb_str_new(mem_buffer, size_in_bytes);
+          output = rb_str_new(mem_buffer, size_in_bytes);
 
           // clean up
           if (unload) FreeImage_Unload(bitmap);
           FreeImage_CloseMemory(mem);
 
-          if (result) {
-            return str;
-          } else {
-            return Qfalse;
-          }
+          return result ? output : Qnil;
         }
         rb_raise(rb_eTypeError, "Unknown file format");
+        return Qnil;
       }
     END
   end

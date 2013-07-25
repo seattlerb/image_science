@@ -16,11 +16,13 @@ class TestImageScience < Minitest::Test
   def setup
     @path = 'test/pix.png'
     @tmppath = 'test/pix-tmp.png'
+    @tmpjpeg = 'test/pix-tmp.jpg'
     @h = @w = 50
   end
 
   def teardown
     File.unlink @tmppath if File.exist? @tmppath
+    File.unlink @tmpjpeg if File.exist? @tmpjpeg
   end
 
   def test_class_with_image
@@ -191,5 +193,31 @@ class TestImageScience < Minitest::Test
       assert_equal 50, img.height
       assert_equal 38, img.width
     end
+  end
+
+  def test_buffer
+    buffer = nil
+    ImageScience.with_image @path do |img|
+      img.thumbnail(128) do |thumb|
+        assert img.save(@tmpjpeg)
+        buffer = img.buffer('.jpg')
+      end
+    end
+
+    file_data = File.new(@tmpjpeg).binmode.read
+    assert_equal file_data, buffer
+  end
+
+  def test_buffer_default
+    buffer = nil
+    ImageScience.with_image @path do |img|
+      img.thumbnail(128) do |thumb|
+        assert img.save(@tmppath)
+        buffer = img.buffer
+      end
+    end
+
+    file_data = File.new(@tmppath).binmode.read
+    assert_equal file_data, buffer
   end
 end
