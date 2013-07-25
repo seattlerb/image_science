@@ -1,3 +1,4 @@
+require 'minitest'
 require 'tmpdir'
 dir = Dir.mktmpdir "image_science."
 ENV['INLINEDIR'] = dir
@@ -23,11 +24,13 @@ class TestImageScience < Minitest::Test
   end
 
   def test_class_with_image
+    buffer = nil
     ImageScience.with_image @path do |img|
       assert_kind_of ImageScience, img
       assert_equal @h, img.height
       assert_equal @w, img.width
       assert img.save(@tmppath)
+      buffer = img.buffer(@tmppath)
     end
 
     assert File.exists?(@tmppath)
@@ -36,6 +39,7 @@ class TestImageScience < Minitest::Test
       assert_kind_of ImageScience, img
       assert_equal @h, img.height
       assert_equal @w, img.width
+      assert_equal buffer, img.buffer(@tmppath)
     end
   end
 
