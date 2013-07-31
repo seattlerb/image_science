@@ -32,7 +32,6 @@ class TestImageScience < Minitest::Test
       assert_equal @h, img.height
       assert_equal @w, img.width
       assert img.save(@tmppath)
-      buffer = img.buffer(@tmppath)
     end
 
     assert File.exists?(@tmppath)
@@ -41,7 +40,6 @@ class TestImageScience < Minitest::Test
       assert_kind_of ImageScience, img
       assert_equal @h, img.height
       assert_equal @w, img.width
-      assert_equal buffer, img.buffer(@tmppath)
     end
   end
 
@@ -199,7 +197,7 @@ class TestImageScience < Minitest::Test
     buffer = nil
     ImageScience.with_image @path do |img|
       img.thumbnail(128) do |thumb|
-        assert img.save(@tmpjpeg)
+        img.save(@tmpjpeg)
         buffer = img.buffer('.jpg')
       end
     end
@@ -212,7 +210,7 @@ class TestImageScience < Minitest::Test
     buffer = nil
     ImageScience.with_image @path do |img|
       img.thumbnail(128) do |thumb|
-        assert img.save(@tmppath)
+        img.save(@tmppath)
         buffer = img.buffer
       end
     end
