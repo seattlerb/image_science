@@ -188,4 +188,23 @@ class TestImageScience < Minitest::Test
       assert_equal 38, img.width
     end
   end
+
+  def test_rotate
+    ImageScience.with_image "test/portrait.jpg" do |image|
+      image.rotate 90 do |img|
+        assert_equal 50, img.width
+        assert_equal 38, img.height
+      end
+    end
+  end
+
+  def test_rotate_not_45
+    e = assert_raises ArgumentError do
+      ImageScience.with_image "test/portrait.jpg" do |image|
+        image.rotate 44
+      end
+    end
+
+    assert_equal 'Angle must be 45 degree skew', e.message
+  end
 end
