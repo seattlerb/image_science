@@ -104,6 +104,8 @@ class ImageScience
 
     builder.prefix <<-"END"
       #define GET_BITMAP(name) Data_Get_Struct(self, FIBITMAP, (name)); if (!(name)) rb_raise(rb_eTypeError, "Bitmap has already been freed");
+      static ID err_key; /* used as thread-local key */
+      static void raise_deferred(void);
     END
 
     builder.prefix <<-"END"
@@ -113,18 +115,29 @@ class ImageScience
 
         FreeImage_Unload(bitmap);
         DATA_PTR(self) = NULL;
+        raise_deferred(); /* raise just in case */
         return Qnil;
       }
     END
 
     builder.prefix <<-"END"
+      static VALUE raise_or_yield(VALUE obj) {
+        /*
+         * check for FreeImage routines which may warn or error out,
+         * do not run user code if there are warnings/errors here:
+         */
+        raise_deferred();
+
+        return rb_yield(obj);
+      }
+
       VALUE wrap_and_yield(FIBITMAP *image, VALUE self, FREE_IMAGE_FORMAT fif) {
         unsigned int self_is_class = rb_type(self) == T_CLASS;
         VALUE klass = self_is_class ? self         : CLASS_OF(self);
         VALUE type  = self_is_class ? INT2FIX(fif) : rb_iv_get(self, "@file_type");
         VALUE obj = Data_Wrap_Struct(klass, NULL, NULL, image);
         rb_iv_set(obj, "@file_type", type);
-        return rb_ensure(rb_yield, obj, unload, obj);
+        return rb_ensure(raise_or_yield, obj, unload, obj);
       }
     END
 
@@ -140,12 +153,28 @@ class ImageScience
       }
     END
 
+    # we defer raising the error until it we find a safe point to do so
+    # We cannot use rb_ensure in these cases because FreeImage may internally
+    # make allocations via which our code will never see.
     builder.prefix <<-"END"
       void FreeImageErrorHandler(FREE_IMAGE_FORMAT fif, const char *message) {
-        rb_raise(rb_eRuntimeError,
+        VALUE err = rb_sprintf(
                  "FreeImage exception for type %s: %s",
                   (fif == FIF_UNKNOWN) ? "???" : FreeImage_GetFormatFromFIF(fif),
                   message);
+        rb_thread_local_aset(rb_thread_current(), err_key, err);
+      }
+    END
+
+    # do not call this until necessary variables are wrapped up for GC
+    # otherwise there will be leaks
+    builder.prefix <<-"END"
+      static void raise_deferred(void) {
+        VALUE err = rb_thread_local_aref(rb_thread_current(), err_key);
+        if (!NIL_P(err)) {
+          rb_thread_local_aset(rb_thread_current(), err_key, Qnil);
+          rb_raise(rb_eRuntimeError, "%s", StringValueCStr(err));
+        }
       }
     END
 
@@ -174,6 +203,7 @@ class ImageScience
     END
 
     builder.add_to_init "FreeImage_SetOutputMessage(FreeImageErrorHandler);"
+    builder.add_to_init 'err_key = rb_intern("__FREE_IMAGE_ERROR");'
 
     builder.c_singleton <<-"END"
       VALUE with_image(char * input) {
@@ -190,6 +220,7 @@ class ImageScience
             bitmap = ReOrient(bitmap);
             result = wrap_and_yield(bitmap, self, fif);
           }
+          raise_deferred();
           return result;
         }
         rb_raise(rb_eTypeError, "Unknown file format");
@@ -228,6 +259,7 @@ class ImageScience
           bitmap = ReOrient(bitmap);
           result = wrap_and_yield(bitmap, self, fif);
         }
+        raise_deferred();
         return result;
       }
     END
@@ -242,6 +274,7 @@ class ImageScience
           copy_icc_profile(self, bitmap, copy);
           result = wrap_and_yield(copy, self, 0);
         }
+        raise_deferred();
         return result;
       }
     END
@@ -275,6 +308,7 @@ class ImageScience
           copy_icc_profile(self, bitmap, image);
           return wrap_and_yield(image, self, 0);
         }
+        raise_deferred();
         return Qnil;
       }
     END
@@ -298,6 +332,7 @@ class ImageScience
 
           if (unload) FreeImage_Unload(bitmap);
 
+          raise_deferred();
           return result ? Qtrue : Qfalse;
         }
         rb_raise(rb_eTypeError, "Unknown file format");
