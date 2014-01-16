@@ -1,3 +1,9 @@
+=== 1.2.6 / 2014-01-15
+
+* 1 bug fix:
+
+  * Defer raising exception until wrapped by rb_ensure. (nocode)
+
 === 1.2.5 / 2013-06-20
 
 * 1 bug fix:
