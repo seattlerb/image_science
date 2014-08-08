@@ -30,7 +30,7 @@ class TestImageScience < Minitest::Test
       assert img.save(@tmppath)
     end
 
-    assert File.exists?(@tmppath)
+    assert File.exist?(@tmppath)
 
     ImageScience.with_image @tmppath do |img|
       assert_kind_of ImageScience, img
@@ -65,7 +65,7 @@ class TestImageScience < Minitest::Test
       assert img.save(@tmppath)
     end
 
-    assert File.exists?(@tmppath)
+    assert File.exist?(@tmppath)
 
     ImageScience.with_image @tmppath do |img|
       assert_kind_of ImageScience, img
@@ -89,7 +89,7 @@ class TestImageScience < Minitest::Test
       end
     end
 
-    assert File.exists?(@tmppath)
+    assert File.exist?(@tmppath)
 
     ImageScience.with_image @tmppath do |img|
       assert_kind_of ImageScience, img
@@ -105,7 +105,7 @@ class TestImageScience < Minitest::Test
       end
     end
 
-    assert File.exists?(@tmppath)
+    assert File.exist?(@tmppath)
 
     ImageScience.with_image @tmppath do |img|
       assert_kind_of ImageScience, img
@@ -123,7 +123,7 @@ class TestImageScience < Minitest::Test
       end
     end
 
-    refute File.exists?(@tmppath)
+    refute File.exist?(@tmppath)
 
     assert_raises ArgumentError do
       ImageScience.with_image @path do |img|
@@ -133,7 +133,7 @@ class TestImageScience < Minitest::Test
       end
     end
 
-    refute File.exists?(@tmppath)
+    refute File.exist?(@tmppath)
   end
 
   def test_resize_negative
@@ -145,7 +145,7 @@ class TestImageScience < Minitest::Test
       end
     end
 
-    refute File.exists?(@tmppath)
+    refute File.exist?(@tmppath)
 
     assert_raises ArgumentError do
       ImageScience.with_image @path do |img|
@@ -155,7 +155,7 @@ class TestImageScience < Minitest::Test
       end
     end
 
-    refute File.exists?(@tmppath)
+    refute File.exist?(@tmppath)
   end
 
   def test_thumbnail
@@ -165,7 +165,7 @@ class TestImageScience < Minitest::Test
       end
     end
 
-    assert File.exists?(@tmppath)
+    assert File.exist?(@tmppath)
 
     ImageScience.with_image @tmppath do |img|
       assert_kind_of ImageScience, img
