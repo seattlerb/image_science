@@ -13,6 +13,8 @@ Hoe.plugin :isolate
 Hoe.spec 'image_science' do
   developer 'Ryan Davis', 'ryand-ruby@zenspider.com'
 
+  license "MIT"
+
   clean_globs << 'blah*png' << 'images/*_thumb.*'
 end
 
