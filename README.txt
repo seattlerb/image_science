@@ -1,7 +1,8 @@
 = ImageScience
 
-* http://seattlerb.rubyforge.org/ImageScience.html
-* http://rubyforge.org/projects/seattlerb
+home :: https://github.com/seattlerb/image_science
+bugs :: https://github.com/seattlerb/image_science/issues
+rdoc :: http://docs.seattlerb.org/image_science
 
 == DESCRIPTION:
 
