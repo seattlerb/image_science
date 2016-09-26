@@ -124,9 +124,7 @@ class ImageScience
   # :method: height
 
   ##
-  # Saves the image to memory and returns its String representation.
-  # Changing the file extension will convert the file type to the
-  # appropriate format.
+  # Writes the image to memory and returns it as a binary String.
   #
   # :method: buffer
 
@@ -154,13 +152,13 @@ class ImageScience
   ##
   # Returns an appropriate content type for the file type, e.g. 'image/jpeg'
   def content_type(type = @file_type)
-    ImageScience::CONTENT_TYPES[ImageScience::FREE_IMAGE_FORMAT.key(type)]
+    ImageScience::CONTENT_TYPES[file_format(type)]
   end
 
   ##
   # Returns an appropriate file extension for the file type, e.g. "jpg"
   def file_extension(type = @file_type)
-    extension = ImageScience::FREE_IMAGE_FORMAT.key(type).to_s[4..-1].downcase
+    extension = file_format(type).to_s[4..-1].downcase
     extension = 'jpg' if extension == 'jpeg'
     extension
   end

@@ -10,7 +10,7 @@ end
 require 'rubygems'
 require 'minitest/unit'
 require 'minitest/autorun' if $0 == __FILE__
-require_relative '../lib/image_science'
+require 'image_science'
 
 class TestImageScience < Minitest::Test
   def setup
@@ -60,7 +60,7 @@ class TestImageScience < Minitest::Test
   end
 
   def test_class_with_image_from_memory
-    data = File.new(@path).binmode.read
+    data = File.binread(@path)
 
     ImageScience.with_image_from_memory data do |img|
       assert_kind_of ImageScience, img
@@ -186,7 +186,7 @@ class TestImageScience < Minitest::Test
   end
 
   def test_auto_rotate_from_memory
-    data = File.new("test/portrait.jpg").binmode.read
+    data = File.binread("test/portrait.jpg")
     ImageScience.with_image_from_memory data do |img|
       assert_equal 50, img.height
       assert_equal 38, img.width
@@ -221,7 +221,7 @@ class TestImageScience < Minitest::Test
       end
     end
 
-    file_data = File.new(@tmpjpeg).binmode.read
+    file_data = File.binread(@tmpjpeg)
     assert_equal file_data, buffer
   end
 
@@ -234,7 +234,7 @@ class TestImageScience < Minitest::Test
       end
     end
 
-    file_data = File.new(@tmppath).binmode.read
+    file_data = File.binread(@tmppath)
     assert_equal file_data, buffer
   end
 end
