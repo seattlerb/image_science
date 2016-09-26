@@ -13,6 +13,89 @@ require 'inline'
 class ImageScience
   VERSION = '1.3.0'
 
+  FREE_IMAGE_FORMAT = {
+    FIF_UNKNOWN: -1,
+    FIF_BMP: 0,
+    FIF_ICO: 1,
+    FIF_JPEG: 2,
+    FIF_JNG: 3,
+    FIF_KOALA: 4,
+    FIF_LBM: 5,
+    FIF_IFF: 5,
+    FIF_MNG: 6,
+    FIF_PBM: 7,
+    FIF_PBMRAW: 8,
+    FIF_PCD: 9,
+    FIF_PCX: 10,
+    FIF_PGM: 11,
+    FIF_PGMRAW: 12,
+    FIF_PNG: 13,
+    FIF_PPM: 14,
+    FIF_PPMRAW: 15,
+    FIF_RAS: 16,
+    FIF_TARGA: 17,
+    FIF_TIFF: 18,
+    FIF_WBMP: 19,
+    FIF_PSD: 20,
+    FIF_CUT: 21,
+    FIF_XBM: 22,
+    FIF_XPM: 23,
+    FIF_DDS: 24,
+    FIF_GIF: 25,
+    FIF_HDR: 26,
+    FIF_FAXG3: 27,
+    FIF_SGI: 28,
+    FIF_EXR: 29,
+    FIF_J2K: 30,
+    FIF_JP2: 31,
+    FIF_PFM: 32,
+    FIF_PICT: 33,
+    FIF_RAW: 34,
+    FIF_WEBP: 35,
+    FIF_JXR: 36
+  }
+
+  CONTENT_TYPES = {
+    FIF_UNKNOWN: 'image',
+    FIF_BMP: 'image/bmp',
+    FIF_ICO: 'image/x-icon',
+    FIF_JPEG: 'image/jpeg',
+    FIF_JNG: 'image',
+    FIF_KOALA: 'image',
+    FIF_LBM: 'image',
+    FIF_IFF: 'image',
+    FIF_MNG: 'image',
+    FIF_PBM: 'image/x-portable-bitmap',
+    FIF_PBMRAW: 'image/x-portable-bitmap',
+    FIF_PCD: 'image',
+    FIF_PCX: 'image/x-pcx',
+    FIF_PGM: 'image/x-portable-greymap',
+    FIF_PGMRAW: 'image/x-portable-greymap',
+    FIF_PNG: 'image/png',
+    FIF_PPM: 'image/x-portable-pixmap',
+    FIF_PPMRAW: 'image/x-portable-pixmap',
+    FIF_RAS: 'image/cmu-raster',
+    FIF_TARGA: 'image/x-targa',
+    FIF_TIFF: 'image/tiff',
+    FIF_WBMP: 'image/vnd.wap.wbmp',
+    FIF_PSD: 'application/octet-stream',
+    FIF_CUT: 'image/x-cut',
+    FIF_XBM: 'image/xbm',
+    FIF_XPM: 'image/xpm',
+    FIF_DDS: 'image/vnd-ms.dds',
+    FIF_GIF: 'image/gif',
+    FIF_HDR: 'image/vnd.radiance',
+    FIF_FAXG3: 'image/fax-g3',
+    FIF_SGI: 'image',
+    FIF_EXR: 'image/x-exr',
+    FIF_J2K: 'image/jp2',
+    FIF_JP2: 'image/jp2',
+    FIF_PFM: 'application/octet-stream',
+    FIF_PICT: 'image/x-pict',
+    FIF_RAW: 'image/raw',
+    FIF_WEBP: 'image/webp',
+    FIF_JXR: 'image/jxr'
+  }
   ##
   # The top-level image loader opens +path+ and then yields the image.
   #
@@ -56,6 +139,30 @@ class ImageScience
   # Rotate the image to +angle+. Limited to 45 degree skewing only.
   #
   # :method: rotate
+
+  ##
+  # Gets the file type as an integer
+  attr_reader :file_type
+
+  ##
+  # Returns the FreeImage file format as a symbol, e.g. :FIF_JPEG
+  def file_format(type = @file_type)
+    ImageScience::FREE_IMAGE_FORMAT.key(type)
+  end
+
+  ##
+  # Returns an appropriate content type for the file type, e.g. 'image/jpeg'
+  def content_type(type = @file_type)
+    ImageScience::CONTENT_TYPES[ImageScience::FREE_IMAGE_FORMAT.key(type)]
+  end
+
+  ##
+  # Returns an appropriate file extension for the file type, e.g. "jpg"
+  def file_extension(type = @file_type)
+    extension = ImageScience::FREE_IMAGE_FORMAT.key(type).to_s[4..-1].downcase
+    extension = 'jpg' if extension == 'jpeg'
+    extension
+  end
 
   ##
   # Creates a proportional thumbnail of the image scaled so its longest
