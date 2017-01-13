@@ -7,7 +7,7 @@ Minitest.after_run do
 end
 
 require 'rubygems'
-require 'minitest/unit'
+require 'minitest/test'
 require 'minitest/autorun' if $0 == __FILE__
 require 'image_science'
 
