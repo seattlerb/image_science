@@ -331,6 +331,20 @@ class ImageScience
     END
 
     builder.c <<-"END"
+      VALUE rotate(int angle) {
+        FIBITMAP *bitmap, *image;
+        if ((angle % 45) != 0) rb_raise(rb_eArgError, "Angle must be 45 degree skew");
+        GET_BITMAP(bitmap);
+        image = FreeImage_RotateClassic(bitmap, angle);
+        if (image) {
+          copy_icc_profile(self, bitmap, image);
+          return wrap_and_yield(image, self, 0);
+        }
+        return Qnil;
+      }
+    END
+
+    builder.c <<-"END"
       VALUE save(char * output) {
         int flags;
         FIBITMAP *bitmap;
