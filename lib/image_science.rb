@@ -331,6 +331,44 @@ class ImageScience
     END
 
     builder.c <<-"END"
+      VALUE save_to_memory() {
+        int flags;
+        FIBITMAP *bitmap;
+        FREE_IMAGE_FORMAT fif = FIX2INT(rb_iv_get(self, "@file_type"));
+        if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) {
+          BYTE* image_data_ptr = 0;
+          DWORD image_data_length = 0;
+          RSTRING data;
+
+          FIMEMORY *stream = FreeImage_OpenMemory(image_data_ptr, image_data_length);
+
+          if (NULL == stream) {
+            rb_raise(rb_eTypeError, "Unable to open image_data");
+          }
+
+          GET_BITMAP(bitmap);
+          flags = fif == FIF_JPEG ? JPEG_QUALITYSUPERB : 0;
+          BOOL result = 0, unload = 0;
+
+          if (fif == FIF_PNG) FreeImage_DestroyICCProfile(bitmap);
+          if (fif == FIF_JPEG && FreeImage_GetBPP(bitmap) != 24)
+            bitmap = FreeImage_ConvertTo24Bits(bitmap), unload = 1; // sue me
+
+          result = FreeImage_SaveToMemory(fif, bitmap, stream, flags);
+
+          if (unload) FreeImage_Unload(bitmap);
+
+          if (result && FreeImage_AcquireMemory(stream, &image_data_ptr, &image_data_length)) {
+              data = rb_str_new(image_data_ptr, image_data_length);
+          }
+          FreeImage_CloseMemory(stream);
+          return data;
+        }
+        rb_raise(rb_eTypeError, "Unknown file format");
+      }
+    END
+
+    builder.c <<-"END"
       VALUE save(char * output) {
         int flags;
         FIBITMAP *bitmap;
