@@ -12,4 +12,3 @@ end
 task :chmod do
   File.chmod(0775, 'lib/image_science/extension.so')
 end
-
