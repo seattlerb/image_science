@@ -74,8 +74,8 @@ static VALUE with_image(VALUE self, VALUE _input) {
 
       result = wrap_and_yield(bitmap, self, fif);
     } else {
-      rb_raise(rb_eTypeError, 
-              "Failed to load image from file %s: %s", 
+      rb_raise(rb_eTypeError,
+              "Failed to load image from file %s: %s",
               input,
               lastFreeImageMessage != NULL ? lastFreeImageMessage : "Unspecified error");
     }
@@ -153,7 +153,7 @@ static VALUE width(VALUE self) {
 }
 
 
-static VALUE resize(VALUE self, VALUE _w, VALUE _h) {
+static VALUE resize(VALUE self, VALUE _w, VALUE _h, VALUE greyscale) {
   long w = NUM2LONG(_w);
   long h = NUM2LONG(_h);
 
@@ -163,6 +163,30 @@ static VALUE resize(VALUE self, VALUE _w, VALUE _h) {
   GET_BITMAP(bitmap);
   image = FreeImage_Rescale(bitmap, w, h, FILTER_CATMULLROM);
   if (image) {
+    if (greyscale > 0) {
+      RGBQUAD a_colors[64];
+      RGBQUAD b_colors[64];
+
+      int grey_point = 192;
+
+      for (int i=grey_point;i<256;i++)
+      {
+          a_colors[i - grey_point].rgbRed = i;
+          a_colors[i - grey_point].rgbGreen = i;
+          a_colors[i - grey_point].rgbBlue = i;
+          b_colors[i - grey_point].rgbRed = grey_point;
+          b_colors[i - grey_point].rgbGreen = grey_point;
+          b_colors[i - grey_point].rgbBlue = grey_point;
+      }
+
+      FIBITMAP *grey = FreeImage_ConvertToGreyscale(image);
+      FreeImage_Unload(image);
+
+      if (grey) {
+        int result = FreeImage_ApplyColorMapping(grey, a_colors, b_colors, 64, TRUE, FALSE);
+        image = grey;
+      }
+    }
     copy_icc_profile(self, bitmap, image);
     return (wrap_and_yield(image, self, 0));
   }
