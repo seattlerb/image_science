@@ -165,6 +165,7 @@ class ImageScience
     # do not call this until necessary variables are wrapped up for GC
     # otherwise there will be leaks
     builder.prefix <<-"END"
+      __attribute__((__noreturn__))
       static void raise_error(void) {
         VALUE err = rb_thread_local_aref(rb_thread_current(), err_key);
         if (NIL_P(err)) {
