@@ -1,3 +1,9 @@
+=== 1.3.1 / 2019-12-14
+
+* 1 bug fix:
+
+  * Added noreturn attribute to raise_error since it always calls rb_raise.
+
 === 1.3.0 / 2016-05-16
 
 * 1 minor enhancement:
