@@ -13,6 +13,89 @@ require 'inline'
 class ImageScience
   VERSION = '1.3.1'
 
+  FREE_IMAGE_FORMAT = {
+    FIF_UNKNOWN: -1,
+    FIF_BMP: 0,
+    FIF_ICO: 1,
+    FIF_JPEG: 2,
+    FIF_JNG: 3,
+    FIF_KOALA: 4,
+    FIF_LBM: 5,
+    FIF_IFF: 5,
+    FIF_MNG: 6,
+    FIF_PBM: 7,
+    FIF_PBMRAW: 8,
+    FIF_PCD: 9,
+    FIF_PCX: 10,
+    FIF_PGM: 11,
+    FIF_PGMRAW: 12,
+    FIF_PNG: 13,
+    FIF_PPM: 14,
+    FIF_PPMRAW: 15,
+    FIF_RAS: 16,
+    FIF_TARGA: 17,
+    FIF_TIFF: 18,
+    FIF_WBMP: 19,
+    FIF_PSD: 20,
+    FIF_CUT: 21,
+    FIF_XBM: 22,
+    FIF_XPM: 23,
+    FIF_DDS: 24,
+    FIF_GIF: 25,
+    FIF_HDR: 26,
+    FIF_FAXG3: 27,
+    FIF_SGI: 28,
+    FIF_EXR: 29,
+    FIF_J2K: 30,
+    FIF_JP2: 31,
+    FIF_PFM: 32,
+    FIF_PICT: 33,
+    FIF_RAW: 34,
+    FIF_WEBP: 35,
+    FIF_JXR: 36
+  }
+
+  CONTENT_TYPES = {
+    FIF_UNKNOWN: 'image',
+    FIF_BMP: 'image/bmp',
+    FIF_ICO: 'image/x-icon',
+    FIF_JPEG: 'image/jpeg',
+    FIF_JNG: 'image',
+    FIF_KOALA: 'image',
+    FIF_LBM: 'image',
+    FIF_IFF: 'image',
+    FIF_MNG: 'image',
+    FIF_PBM: 'image/x-portable-bitmap',
+    FIF_PBMRAW: 'image/x-portable-bitmap',
+    FIF_PCD: 'image',
+    FIF_PCX: 'image/x-pcx',
+    FIF_PGM: 'image/x-portable-greymap',
+    FIF_PGMRAW: 'image/x-portable-greymap',
+    FIF_PNG: 'image/png',
+    FIF_PPM: 'image/x-portable-pixmap',
+    FIF_PPMRAW: 'image/x-portable-pixmap',
+    FIF_RAS: 'image/cmu-raster',
+    FIF_TARGA: 'image/x-targa',
+    FIF_TIFF: 'image/tiff',
+    FIF_WBMP: 'image/vnd.wap.wbmp',
+    FIF_PSD: 'application/octet-stream',
+    FIF_CUT: 'image/x-cut',
+    FIF_XBM: 'image/xbm',
+    FIF_XPM: 'image/xpm',
+    FIF_DDS: 'image/vnd-ms.dds',
+    FIF_GIF: 'image/gif',
+    FIF_HDR: 'image/vnd.radiance',
+    FIF_FAXG3: 'image/fax-g3',
+    FIF_SGI: 'image',
+    FIF_EXR: 'image/x-exr',
+    FIF_J2K: 'image/jp2',
+    FIF_JP2: 'image/jp2',
+    FIF_PFM: 'application/octet-stream',
+    FIF_PICT: 'image/x-pict',
+    FIF_RAW: 'image/raw',
+    FIF_WEBP: 'image/webp',
+    FIF_JXR: 'image/jxr'
+  }
   ##
   # The top-level image loader opens +path+ and then yields the image.
   #
@@ -41,10 +124,9 @@ class ImageScience
   # :method: height
 
   ##
-  # Saves the image out to +path+. Changing the file extension will
-  # convert the file type to the appropriate format.
+  # Writes the image to memory and returns it as a binary String.
   #
-  # :method: save
+  # :method: buffer
 
   ##
   # Resizes the image to +width+ and +height+ using a cubic-bspline
@@ -56,6 +138,30 @@ class ImageScience
   # Rotate the image to +angle+. Limited to 45 degree skewing only.
   #
   # :method: rotate
+
+  ##
+  # Gets the file type as an integer
+  attr_reader :file_type
+
+  ##
+  # Returns the FreeImage file format as a symbol, e.g. :FIF_JPEG
+  def file_format(type = @file_type)
+    ImageScience::FREE_IMAGE_FORMAT.key(type)
+  end
+
+  ##
+  # Returns an appropriate content type for the file type, e.g. 'image/jpeg'
+  def content_type(type = @file_type)
+    ImageScience::CONTENT_TYPES[file_format(type)]
+  end
+
+  ##
+  # Returns an appropriate file extension for the file type, e.g. "jpg"
+  def file_extension(type = @file_type)
+    extension = file_format(type).to_s[4..-1].downcase
+    extension = 'jpg' if extension == 'jpeg'
+    extension
+  end
 
   ##
   # Creates a proportional thumbnail of the image scaled so its longest
@@ -88,6 +194,17 @@ class ImageScience
       end
     end
   end
+
+  ##
+  # Saves the image out to +path+. Changing the file extension will
+  # convert the file type to the appropriate format.
+
+  def save(path)
+    File.open(path, "wb") do |file|
+      file.write buffer(path)
+    end
+  end
+
 
   inline do |builder|
     %w[/opt/local /usr/local].each do |dir|
@@ -331,16 +448,26 @@ class ImageScience
       }
     END
 
-    builder.c <<-"END"
-      VALUE save(char * output) {
+    builder.c_raw <<-"END"
+      VALUE buffer(int argc, VALUE *argv, VALUE self) {
+        VALUE output;
         int flags;
         FIBITMAP *bitmap;
-        FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(output);
+        FIMEMORY *mem = NULL;
+        long file_size;
+        BYTE *mem_buffer = NULL;
+        DWORD size_in_bytes = 0;
+        FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
+        VALUE ext;
+
+        rb_scan_args(argc, argv, "01", &ext);
+        if (RTEST(ext)) fif = FreeImage_GetFIFFromFilename(RSTRING_PTR(ext));
         if (fif == FIF_UNKNOWN) fif = FIX2INT(rb_iv_get(self, "@file_type"));
+
         if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsWriting(fif)) {
-          BOOL result = 0, unload = 0;
           GET_BITMAP(bitmap);
           flags = fif == FIF_JPEG ? JPEG_QUALITYSUPERB : 0;
+          BOOL result = 0, unload = 0;
 
           if (fif == FIF_PNG) FreeImage_DestroyICCProfile(bitmap);
           if (fif == FIF_JPEG && FreeImage_GetBPP(bitmap) != 24) {
@@ -348,11 +475,21 @@ class ImageScience
             if (!bitmap) raise_error();
           }
 
-          result = FreeImage_Save(fif, bitmap, output, flags);
-          if (unload) FreeImage_Unload(bitmap);
-          if (!result) raise_error();
+          mem = FreeImage_OpenMemory(0,0);
+          result = FreeImage_SaveToMemory(fif, bitmap, mem, flags);
 
-          return Qtrue;
+          // get the buffer from the memory stream
+          FreeImage_AcquireMemory(mem, &mem_buffer, &size_in_bytes);
+
+          // convert to ruby string
+          output = rb_str_new(mem_buffer, size_in_bytes);
+
+          // clean up
+          if (unload) FreeImage_Unload(bitmap);
+          FreeImage_CloseMemory(mem);
+
+          if (!result) raise_error();
+          return result ? output : Qnil;
         }
         rb_raise(rb_eTypeError, "Unknown file format");
         return Qnil;
