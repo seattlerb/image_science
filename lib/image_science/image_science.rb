@@ -46,7 +46,7 @@ class ImageScience
   # Resizes the image to +width+ and +height+ using a cubic-bspline
   # filter and yields the new image.
 
-  def resize(width, height) # :yields: image
+  def resize(width, height, greyscale=0) # :yields: image
   end
 
   ##
