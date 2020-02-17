@@ -54,15 +54,13 @@ class ImageScience
   # edge is resized to +size+ and yields the new image.
 
   def thumbnail(size, greyscale=false) # :yields: image
-    w, h = width, height
-    scale = size.to_f / (w > h ? w : h)
-
-    self.resize((w * scale).round, (h * scale).round, greyscale ? 1 : 0) do |image|
+    w, h = size[0], size[1]
+    self.resize(w.to_i, h.to_i, greyscale ? 1 : 0) do |image|
       yield image
     end
   end
 
-  ##
+  ##x
   # Creates a square thumbnail of the image cropping the longest edge
   # to match the shortest edge, resizes to +size+, and yields the new
   # image.
