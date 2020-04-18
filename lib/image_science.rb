@@ -192,13 +192,13 @@ class ImageScience
         FreeImage_GetMetadata(FIMD_EXIF_MAIN, bitmap, "Orientation", &tagValue);
         switch (tagValue == NULL ? 0 : *((short *) FreeImage_GetTagValue(tagValue))) {
           case 6:
-            bitmap = FreeImage_RotateClassic(bitmap, 270);
+            bitmap = FreeImage_Rotate(bitmap, 270, NULL);
             break;
           case 3:
-            bitmap = FreeImage_RotateClassic(bitmap, 180);
+            bitmap = FreeImage_Rotate(bitmap, 180, NULL);
             break;
           case 8:
-            bitmap = FreeImage_RotateClassic(bitmap, 90);
+            bitmap = FreeImage_Rotate(bitmap, 90, NULL);
             break;
           default:
             bitmap = FreeImage_Clone(bitmap);
@@ -322,7 +322,7 @@ class ImageScience
         FIBITMAP *bitmap, *image;
         if ((angle % 45) != 0) rb_raise(rb_eArgError, "Angle must be 45 degree skew");
         GET_BITMAP(bitmap);
-        image = FreeImage_RotateClassic(bitmap, angle);
+        image = FreeImage_Rotate(bitmap, angle, NULL);
         if (image) {
           copy_icc_profile(self, bitmap, image);
           return wrap_and_yield(image, self, 0);
