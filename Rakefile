@@ -1,26 +1,14 @@
-# -*- ruby -*-
+require 'bundler'
+Bundler::GemHelper.install_tasks
 
-require 'rubygems'
-require 'hoe'
+task :build => [:compile, :chmod]
 
-Hoe.add_include_dirs("../../RubyInline/dev/lib",
-                     "../../ZenTest/dev/lib")
-
-Hoe.plugin :seattlerb
-Hoe.plugin :inline
-Hoe.plugin :isolate
-
-Hoe.spec 'image_science' do
-  developer 'Ryan Davis', 'ryand-ruby@zenspider.com'
-
-  license "MIT"
-
-  clean_globs << 'blah*png' << 'images/*_thumb.*'
+task :compile do
+  `ruby ext/image_science/extconf.rb`
+  `make`
+  `mv extension.so lib/image_science/extension.so`
 end
 
-task :debug => :isolate do
-  file = ENV["F"]
-  ruby "-Ilib bin/image_science_thumb 100 #{file}"
+task :chmod do
+  File.chmod(0775, 'lib/image_science/extension.so')
 end
-
-# vim: syntax=Ruby
