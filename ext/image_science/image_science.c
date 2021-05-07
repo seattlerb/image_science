@@ -60,13 +60,13 @@ static VALUE with_image(VALUE self, VALUE _input) {
       FreeImage_GetMetadata(FIMD_EXIF_MAIN, bitmap, "Orientation", &tagValue);
       switch (tagValue == NULL ? 0 : *((short *) FreeImage_GetTagValue(tagValue))) {
         case 6:
-          bitmap = FreeImage_RotateClassic(bitmap, 270);
+          bitmap = FreeImage_Rotate(bitmap, 270, NULL);
           break;
         case 3:
-          bitmap = FreeImage_RotateClassic(bitmap, 180);
+          bitmap = FreeImage_Rotate(bitmap, 180, NULL);
           break;
         case 8:
-          bitmap = FreeImage_RotateClassic(bitmap, 90);
+          bitmap = FreeImage_Rotate(bitmap, 90, NULL);
           break;
         default:
          break;
