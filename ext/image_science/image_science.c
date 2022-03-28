@@ -152,7 +152,6 @@ static VALUE width(VALUE self) {
   return INT2FIX(FreeImage_GetWidth(bitmap));
 }
 
-
 static VALUE resize(VALUE self, VALUE _w, VALUE _h, VALUE greyscale) {
   long w = NUM2LONG(_w);
   long h = NUM2LONG(_h);
@@ -193,6 +192,9 @@ static VALUE resize(VALUE self, VALUE _w, VALUE _h, VALUE greyscale) {
   return (Qnil);
 }
 
+static VALUE _resize(VALUE self, VALUE _w, VALUE _h) {
+  return resize(self, _w, _h, 0);
+}
 
 static VALUE save(VALUE self, VALUE _output) {
   char * output = StringValuePtr(_output);
@@ -229,6 +231,7 @@ extern "C" {
     c = rb_const_get(c, rb_intern("ImageScience"));
 
     rb_define_method(c, "height", (VALUE(*)(ANYARGS))height, 0);
+    rb_define_method(c, "resize", (VALUE(*)(ANYARGS))_resize, 2);
     rb_define_method(c, "resize", (VALUE(*)(ANYARGS))resize, 3);
     rb_define_method(c, "save", (VALUE(*)(ANYARGS))save, 1);
     rb_define_method(c, "width", (VALUE(*)(ANYARGS))width, 0);
