@@ -90,7 +90,7 @@ class ImageScience
   end
 
   inline do |builder|
-    %w[/opt/local /usr/local].each do |dir|
+    %w[/opt/homebrew /opt/local /usr/local].each do |dir|
       if File.directory? "#{dir}/include" then
         builder.add_compile_flags "-I#{dir}/include"
         builder.add_link_flags "-L#{dir}/lib"
