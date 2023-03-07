@@ -7,8 +7,8 @@ require 'inline'
 # Provides a clean and simple API to generate thumbnails using
 # FreeImage as the underlying mechanism.
 #
-# For more information or if you have build issues with FreeImage, see
-# http://seattlerb.rubyforge.org/ImageScience.html
+# For more information, see
+# http://docs.seattlerb.org/image_science
 
 class ImageScience
   VERSION = '1.3.2'
