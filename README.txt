@@ -10,7 +10,7 @@ ImageScience is a clean and happy Ruby library that generates
 thumbnails -- and kicks the living crap out of RMagick. Oh, and it
 doesn't leak memory like a sieve. :)
 
-For more information including build steps, see http://seattlerb.rubyforge.org/
+For more information, see http://docs.seattlerb.org/image_science
 
 == FEATURES/PROBLEMS:
 
@@ -39,7 +39,7 @@ For more information including build steps, see http://seattlerb.rubyforge.org/
 
 * Download and install FreeImage. See notes at url above.
 * sudo gem install -y image_science
-* see http://seattlerb.rubyforge.org/ImageScience.html for more info.
+* see http://docs.seattlerb.org/image_science for more info.
 
 == LICENSE:
 
